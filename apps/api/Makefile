@@ -4,7 +4,7 @@ export
 
 
 .PHONY: help install api-dev build test test-go test-integration test-all lint check \
-	api-bundle api-docs api-generate sqlc-generate i18n-generate regenerate-all api-check sqlc-check i18n-check check-generated clean \
+	api-bundle api-docs api-generate openapi-client-generate sqlc-generate i18n-generate regenerate-all api-check sqlc-check i18n-check check-generated clean \
 	migrate-up-dev migrate-down-dev migrate-status-dev migrate-skip-dev \
 	migrate-up-staging migrate-down-staging migrate-status-staging migrate-skip-staging \
 	migrate-up-prod migrate-down-prod migrate-status-prod migrate-skip-prod \
@@ -72,6 +72,7 @@ help:
 	@echo "  api-bundle         Bundle split OpenAPI files into single spec"
 	@echo "  api-docs           Generate API documentation (Redoc HTML)"
 	@echo "  api-generate       Generate Go server from OpenAPI spec"
+	@echo "  openapi-client-generate Generate TypeScript API client from OpenAPI spec"
 	@echo "  sqlc-generate      Generate Go + Python code from SQL queries"
 	@echo "  llm-models-generate Generate Python models from OpenAPI spec"
 	@echo "  i18n-generate      Generate typed i18n key constants from TOML"
@@ -202,6 +203,12 @@ api-docs: api-bundle
 api-generate: api-bundle
 	oapi-codegen --config oapi-codegen.yaml api/openapi-bundled.yaml
 
+# Generate the TypeScript API client (packages/openapi-client) from the bundled spec
+openapi-client-generate: api-bundle
+	@echo "Generating TypeScript API client..."
+	pnpm --filter @lexicon/openapi-client generate
+	@echo "✓ Generated packages/openapi-client/src/backend-types.ts"
+
 sqlc-generate:
 	sqlc generate
 	# Fix Python import paths (SQLC generates absolute imports, we need relative)
@@ -224,7 +231,7 @@ i18n-generate:
 	@go run ./cmd/gen-i18n-keys
 	@echo "✓ Generated internal/i18n/keys_gen.go"
 
-regenerate-all: api-generate sqlc-generate llm-models-generate i18n-generate
+regenerate-all: api-generate openapi-client-generate sqlc-generate llm-models-generate i18n-generate
 
 # CI validation - ensures generated code is in sync with specs
 api-check: api-bundle
