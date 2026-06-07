@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./backend": "./src/backend.ts",
-    "./crawlers": "./src/crawlers.ts"
+    "./backend": "./src/backend.ts"
   },
   "scripts": {
     "generate": "tsx scripts/generate.ts",
@@ -14,7 +13,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "dotenv": "catalog:",
     "openapi-fetch": "catalog:",
     "server-only": "catalog:"
   },

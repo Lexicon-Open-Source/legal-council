@@ -141,9 +141,6 @@ catalogs:
     date-fns:
       specifier: 4.1.0
       version: 4.1.0
-    dotenv:
-      specifier: ^17.4.2
-      version: 17.4.2
     embla-carousel-react:
       specifier: 8.6.0
       version: 8.6.0
@@ -606,9 +603,6 @@ importers:
 
   packages/openapi-client:
     dependencies:
-      dotenv:
-        specifier: 'catalog:'
-        version: 17.4.2
       openapi-fetch:
         specifier: 'catalog:'
         version: 0.17.0
@@ -3656,10 +3650,6 @@ packages:
 
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
-    engines: {node: '>=12'}
-
-  dotenv@17.4.2:
-    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -8704,8 +8694,6 @@ snapshots:
   dotenv@16.0.3: {}
 
   dotenv@16.4.7: {}
-
-  dotenv@17.4.2: {}
 
   dunder-proto@1.0.1:
     dependencies:
