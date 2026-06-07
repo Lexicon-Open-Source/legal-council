@@ -1,0 +1,197 @@
+# Lexicon Backend API - Main specification file
+# This file references external path and schema files.
+# Use 'make api-bundle' to create the bundled spec for code generation.
+
+openapi: 3.0.3
+info:
+  title: Lexicon Backend API
+  version: 1.0.0
+servers:
+- url: http://localhost:8000
+  description: Local development
+paths:
+  /v1/council/sessions:
+    $ref: paths/council.yaml#/~1v1~1council~1sessions
+  /v1/council/sessions/{session_id}:
+    $ref: paths/council.yaml#/~1v1~1council~1sessions~1{session_id}
+  /v1/council/sessions/{session_id}/conclude:
+    $ref: paths/council.yaml#/~1v1~1council~1sessions~1{session_id}~1conclude
+  /v1/council/deliberation/{session_id}/message:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1message
+  /v1/council/deliberation/{session_id}/continue:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1continue
+  /v1/council/deliberation/{session_id}/messages:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1messages
+  /v1/council/deliberation/{session_id}/opinion:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1opinion
+  /v1/council/deliberation/{session_id}/stream/initial:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1stream~1initial
+  /v1/council/deliberation/{session_id}/stream/message:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1stream~1message
+  /v1/council/deliberation/{session_id}/stream/continue:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1stream~1continue
+  /v1/council/deliberation/{session_id}/download/pdf:
+    $ref: paths/council.yaml#/~1v1~1council~1deliberation~1{session_id}~1download~1pdf
+  /v1/council/cases/search:
+    $ref: paths/council.yaml#/~1v1~1council~1cases~1search
+  /v1/council/cases/by-type/{case_type}:
+    $ref: paths/council.yaml#/~1v1~1council~1cases~1by-type~1{case_type}
+  /v1/council/cases/{case_id}:
+    $ref: paths/council.yaml#/~1v1~1council~1cases~1{case_id}
+  /v1/council/cases/statistics:
+    $ref: paths/council.yaml#/~1v1~1council~1cases~1statistics
+  /health:
+    $ref: paths/health.yaml#/~1health
+  /ready:
+    $ref: paths/health.yaml#/~1ready
+components:
+  schemas:
+    AgentId:
+      $ref: schemas/council.yaml#/AgentId
+    AgentPosition:
+      $ref: schemas/council.yaml#/AgentPosition
+    AgentSender:
+      $ref: schemas/council.yaml#/AgentSender
+    AgreementMap:
+      $ref: schemas/council.yaml#/AgreementMap
+    ApplicableLaw:
+      $ref: schemas/council.yaml#/ApplicableLaw
+    ArgumentPoint:
+      $ref: schemas/council.yaml#/ArgumentPoint
+    CaseInput:
+      $ref: schemas/council.yaml#/CaseInput
+    CaseRecord:
+      $ref: schemas/common.yaml#/CaseRecord
+    CaseStatisticsResponse:
+      $ref: schemas/common.yaml#/CaseStatisticsResponse
+    ChartItem:
+      $ref: schemas/common.yaml#/ChartItem
+    CitedPrecedent:
+      $ref: schemas/council.yaml#/CitedPrecedent
+    ContinueDiscussionRequest:
+      $ref: schemas/council.yaml#/ContinueDiscussionRequest
+    ContinueDiscussionResponse:
+      $ref: schemas/council.yaml#/ContinueDiscussionResponse
+    CorruptionDetails:
+      $ref: schemas/council.yaml#/CorruptionDetails
+    CouncilCaseType:
+      $ref: schemas/council.yaml#/CouncilCaseType
+    CouncilDefendantProfile:
+      $ref: schemas/council.yaml#/CouncilDefendantProfile
+    CouncilSimilarCase:
+      $ref: schemas/council.yaml#/CouncilSimilarCase
+    CreateSessionRequest:
+      $ref: schemas/council.yaml#/CreateSessionRequest
+    CreateSessionResponse:
+      $ref: schemas/council.yaml#/CreateSessionResponse
+    CreateSessionStreamEventData:
+      $ref: schemas/council.yaml#/CreateSessionStreamEventData
+    CreateSessionStreamEventType:
+      $ref: schemas/council.yaml#/CreateSessionStreamEventType
+    DeliberationMessage:
+      $ref: schemas/council.yaml#/DeliberationMessage
+    DeliberationPhase:
+      $ref: schemas/council.yaml#/DeliberationPhase
+    DeliberationSession:
+      $ref: schemas/council.yaml#/DeliberationSession
+    Error:
+      $ref: schemas/common.yaml#/Error
+    FilterOption:
+      $ref: schemas/common.yaml#/FilterOption
+    GenerateOpinionRequest:
+      $ref: schemas/common.yaml#/GenerateOpinionRequest
+    GenerateOpinionResponse:
+      $ref: schemas/council.yaml#/GenerateOpinionResponse
+    GetCaseResponse:
+      $ref: schemas/common.yaml#/GetCaseResponse
+    GetMessagesResponse:
+      $ref: schemas/common.yaml#/GetMessagesResponse
+    GetSessionResponse:
+      $ref: schemas/common.yaml#/GetSessionResponse
+    InputType:
+      $ref: schemas/council.yaml#/InputType
+    LegalArguments:
+      $ref: schemas/council.yaml#/LegalArguments
+    LegalOpinionDraft:
+      $ref: schemas/council.yaml#/LegalOpinionDraft
+    ListSessionsResponse:
+      $ref: schemas/common.yaml#/ListSessionsResponse
+    MessageIntent:
+      $ref: schemas/common.yaml#/MessageIntent
+    MessageSender:
+      $ref: schemas/council.yaml#/MessageSender
+    NarcoticsDetails:
+      $ref: schemas/council.yaml#/NarcoticsDetails
+    NarcoticsIntent:
+      $ref: schemas/council.yaml#/NarcoticsIntent
+    PaginationMeta:
+      $ref: schemas/common.yaml#/PaginationMeta
+    ParsedCaseInput:
+      $ref: schemas/council.yaml#/ParsedCaseInput
+    PhaseMetadata:
+      $ref: schemas/council.yaml#/PhaseMetadata
+    PositionStance:
+      $ref: schemas/council.yaml#/PositionStance
+    SearchCasesRequest:
+      $ref: schemas/common.yaml#/SearchCasesRequest
+    SearchCasesResponse:
+      $ref: schemas/common.yaml#/SearchCasesResponse
+    SendMessageRequest:
+      $ref: schemas/council.yaml#/SendMessageRequest
+    SendMessageResponse:
+      $ref: schemas/council.yaml#/SendMessageResponse
+    SenderType:
+      $ref: schemas/common.yaml#/SenderType
+    SentenceRange:
+      $ref: schemas/council.yaml#/SentenceRange
+    SentenceRecommendation:
+      $ref: schemas/council.yaml#/SentenceRecommendation
+    SessionStatus:
+      $ref: schemas/council.yaml#/SessionStatus
+    SimilarCase:
+      $ref: schemas/council.yaml#/SimilarCase
+    StreamContinueRequest:
+      $ref: schemas/council.yaml#/StreamContinueRequest
+    StreamEventData:
+      $ref: schemas/council.yaml#/StreamEventData
+    StreamEventType:
+      $ref: schemas/council.yaml#/StreamEventType
+    StreamMessageRequest:
+      $ref: schemas/council.yaml#/StreamMessageRequest
+    StructuredCaseData:
+      $ref: schemas/council.yaml#/StructuredCaseData
+    SystemSender:
+      $ref: schemas/council.yaml#/SystemSender
+    UserSender:
+      $ref: schemas/council.yaml#/UserSender
+    VerdictDecision:
+      $ref: schemas/council.yaml#/VerdictDecision
+    VerdictRecommendation:
+      $ref: schemas/council.yaml#/VerdictRecommendation
+    YearRange:
+      $ref: schemas/common.yaml#/YearRange
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Lexicon-Api-Key
+      description: API key for bulk data egress (ProcureLens ETL)
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Authentik OIDC JWT token for admin authentication
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: admin_session
+      description: |
+        Opaque admin BFF session cookie issued by `/v1/admin/auth/callback`.
+        HttpOnly, Secure, SameSite=Lax. Admin endpoints accept EITHER this
+        cookie OR `Authorization: Bearer <jwt>`; supplying both causes the
+        Bearer token to win.
+    TurnstileToken:
+      type: apiKey
+      in: header
+      name: X-Turnstile-Token
+      description: Cloudflare Turnstile verification token from client-side widget

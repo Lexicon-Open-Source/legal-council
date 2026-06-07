@@ -1,0 +1,65 @@
+# Health API paths
+# Part of the Lexicon Backend API specification
+
+/health:
+  get:
+    summary: Liveness probe
+    description: Check if the service is alive and responding to requests
+    operationId: getHealth
+    tags:
+    - health
+    responses:
+      '200':
+        description: Service is alive
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+            example:
+              status: ok
+/ready:
+  get:
+    summary: Readiness probe
+    description: Check if the service is ready to accept traffic (database and Redis connections healthy)
+    operationId: getReady
+    tags:
+    - health
+    responses:
+      '200':
+        description: Service is ready
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                database:
+                  type: string
+                redis:
+                  type: string
+            example:
+              status: ready
+              database: connected
+              redis: connected
+      '503':
+        description: Service not ready
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                database:
+                  type: string
+                redis:
+                  type: string
+            example:
+              status: not_ready
+              database: connected
+              redis: disconnected

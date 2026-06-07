@@ -1,0 +1,763 @@
+# Lexicon Backend — Indonesian Translations (Source of Truth)
+# Format: go-i18n v2 TOML. Each key becomes a typed constant in keys_gen.go.
+# Named interpolation uses {{.VarName}} (not printf %s/%d).
+
+# =============================================================================
+# Case Types
+# =============================================================================
+
+[verdict]
+other = "putusan"
+
+[blacklist]
+other = "daftar hitam"
+
+[sanction]
+other = "sanksi"
+
+# =============================================================================
+# Subject Types
+# =============================================================================
+
+[individual]
+other = "individu"
+
+[company]
+other = "perusahaan"
+
+[organization]
+other = "organisasi"
+
+[unknown]
+other = "tidak diketahui"
+
+# =============================================================================
+# Countries
+# =============================================================================
+
+[country_indonesia]
+other = "Indonesia"
+
+[country_malaysia]
+other = "Malaysia"
+
+[country_singapore]
+other = "Singapura"
+
+[country_global]
+other = "Global"
+
+# =============================================================================
+# OCDS Error Messages
+# =============================================================================
+
+[error_search_tenders]
+other = "Tidak dapat menyelesaikan pencarian Anda. Silakan coba lagi."
+
+[error_list_tenders]
+other = "Tidak dapat memuat daftar tender. Silakan coba lagi."
+
+[error_tender_not_found]
+other = "Tender yang diminta tidak ditemukan."
+
+[error_analytics]
+other = "Tidak dapat memuat analitik. Silakan coba lagi."
+
+[error_filters]
+other = "Tidak dapat memuat opsi filter. Silakan coba lagi."
+
+[error_invalid_page]
+other = "Nomor halaman harus antara 1 dan 1.000."
+
+[error_query_too_long]
+other = "Kata pencarian terlalu panjang. Gunakan kurang dari 500 karakter."
+
+[error_sort_requires_query]
+other = "Untuk mengurutkan berdasarkan relevansi, silakan masukkan kata pencarian terlebih dahulu."
+
+# =============================================================================
+# OCDS Filter Labels — Categories
+# =============================================================================
+
+[goods]
+other = "Barang"
+
+[works]
+other = "Konstruksi"
+
+[services]
+other = "Jasa"
+
+# =============================================================================
+# OCDS Filter Labels — Statuses
+# =============================================================================
+
+[status_planning]
+other = "Perencanaan"
+
+[status_planned]
+other = "Direncanakan"
+
+[status_active]
+other = "Aktif"
+
+[status_cancelled]
+other = "Dibatalkan"
+
+[status_unsuccessful]
+other = "Tidak Berhasil"
+
+[status_complete]
+other = "Selesai"
+
+[status_withdrawn]
+other = "Ditarik"
+
+# =============================================================================
+# SPSE Institution Type Labels
+# =============================================================================
+
+[inst_type_bumn]
+other = "Badan Usaha Milik Negara"
+
+[inst_type_kementerian]
+other = "Kementerian"
+
+[inst_type_lembaga]
+other = "Lembaga Pemerintah Nonkementerian"
+
+[inst_type_pemerintah_daerah]
+other = "Pemerintah Daerah"
+
+# =============================================================================
+# SPSE Dashboard — Value Buckets
+# =============================================================================
+
+[bucket_under_500m]
+other = "<500 Juta"
+
+[bucket_500m_2_5b]
+other = "500 Juta - 2.5 Miliar"
+
+[bucket_2_5b_10b]
+other = "2.5 - 10 Miliar"
+
+[bucket_over_10b]
+other = ">10 Miliar"
+
+# =============================================================================
+# SPSE Dashboard — Participant Buckets
+# =============================================================================
+
+[bucket_1_15]
+other = "1-15 peserta"
+
+[bucket_15_25]
+other = "15-25 peserta"
+
+[bucket_25_35]
+other = "25-35 peserta"
+
+[bucket_over_35]
+other = ">35 peserta"
+
+# =============================================================================
+# SPSE Dashboard — Duration Buckets
+# =============================================================================
+
+[bucket_0_30]
+other = "0-30 hari"
+
+[bucket_31_60]
+other = "31-60 hari"
+
+[bucket_61_90]
+other = "61-90 hari"
+
+[bucket_over_90]
+other = ">90 hari"
+
+# =============================================================================
+# SPSE Dashboard — Savings Buckets
+# =============================================================================
+
+[bucket_0_5]
+other = "0-5%"
+
+[bucket_5_10]
+other = "5-10%"
+
+[bucket_10_20]
+other = "10-20%"
+
+[bucket_over_20]
+other = ">20%"
+
+# =============================================================================
+# SPSE Dashboard — Tender Result Buckets
+# =============================================================================
+
+[bucket_batal]
+other = "Dibatalkan"
+
+[bucket_gagal]
+other = "Gagal"
+
+[bucket_selesai]
+other = "Selesai"
+
+# =============================================================================
+# Turnstile Verification Errors
+# =============================================================================
+
+[error_turnstile_missing]
+other = "Silakan selesaikan verifikasi keamanan untuk melanjutkan."
+
+[error_turnstile_failed]
+other = "Verifikasi keamanan gagal. Silakan coba lagi."
+
+[error_session_token_expired]
+other = "Sesi telah berakhir. Silakan verifikasi ulang."
+
+[error_session_token_invalid]
+other = "Token sesi tidak valid."
+
+[error_app_key_invalid]
+other = "Kunci aplikasi tidak valid."
+
+# =============================================================================
+# AML Screening Errors
+# =============================================================================
+
+[error_aml_screening_failed]
+other = "Tidak dapat menyelesaikan pemeriksaan. Silakan coba lagi."
+
+[error_aml_invalid_request]
+other = "Permintaan pemeriksaan tidak valid. Silakan periksa input Anda dan coba lagi."
+
+[error_aml_invalid_name]
+other = "Nama harus antara 2 dan 200 karakter."
+
+[error_aml_invalid_entity_type]
+other = "Silakan pilih 'individual' atau 'company' sebagai tipe entitas."
+
+# =============================================================================
+# SPSE Dashboard — Conclusion Templates (named interpolation)
+# =============================================================================
+
+[conclusion_summary]
+other = "Total {{.Total}} tender tercatat dengan {{.Active}} tender masih aktif dari {{.Institutions}} instansi."
+
+[conclusion_value_distribution]
+other = "Mayoritas tender ({{.Percentage}}) berada di rentang {{.Range}}."
+
+[conclusion_procurement_type_count]
+other = "{{.Type}} mendominasi dengan {{.Percentage}} dari total tender berdasarkan jumlah."
+
+[conclusion_procurement_type_value]
+other = "{{.Type}} mendominasi dengan {{.Percentage}} dari total nilai tender."
+
+[conclusion_participant_distribution]
+other = "Rata-rata {{.Average}} peserta per tender. {{.MostCommonPct}} tender memiliki {{.MostCommonRange}}. Tingkat tender pemenang tunggal {{.SingleBidderRate}}."
+
+[conclusion_duration_distribution]
+other = "Rata-rata durasi tender {{.Average}} hari. {{.Within60Days}} tender selesai dalam 60 hari."
+
+[conclusion_tender_result]
+other = "Dari tender yang sudah final, {{.Completed}} selesai dengan sukses, {{.Failed}} gagal, dan {{.Cancelled}} dibatalkan."
+
+[conclusion_savings_distribution]
+other = "Rata-rata penghematan {{.Average}} dari HPS. Total potensi penghematan {{.TotalSavings}}."
+
+# =============================================================================
+# Beneficial Ownership — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_invalid_case_id]
+other = "ID kasus yang diberikan tidak valid. Silakan periksa dan coba lagi."
+
+[error_case_not_found]
+other = "Kasus yang diminta tidak ditemukan."
+
+[error_fetch_chart_data]
+other = "Tidak dapat memuat data grafik. Silakan coba lagi."
+
+[error_internal_server]
+other = "Terjadi kesalahan pada sistem kami. Silakan coba lagi nanti."
+
+[error_fetch_case_detail]
+other = "Tidak dapat memuat detail kasus. Silakan coba lagi."
+
+[error_fetch_search_results]
+other = "Tidak dapat memuat hasil pencarian. Silakan coba lagi."
+
+[error_fetch_filters]
+other = "Tidak dapat memuat opsi filter. Silakan coba lagi."
+
+[error_invalid_page_range]
+other = "Nomor halaman harus antara {{.Min}} dan {{.Max}}."
+
+[error_invalid_page_size_range]
+other = "Ukuran halaman harus antara {{.Min}} dan {{.Max}}."
+
+[error_invalid_year_range_format]
+other = "Silakan gunakan format YYYY-YYYY untuk rentang tahun (contoh: 2020-2023)."
+
+[error_year_range_min]
+other = "Tahun tidak boleh lebih awal dari {{.Min}}."
+
+[error_year_range_max]
+other = "Tahun tidak boleh lebih dari {{.Max}}."
+
+[error_year_range_inverted]
+other = "Tahun awal harus kurang dari atau sama dengan tahun akhir."
+
+[error_year_range_span]
+other = "Rentang tahun tidak boleh lebih dari {{.Max}} tahun."
+
+[error_year_numeric]
+other = "Silakan masukkan tahun dalam format angka yang valid."
+
+[error_invalid_sort]
+other = "Opsi pengurutan yang dipilih tidak valid."
+
+# =============================================================================
+# Sanctions — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_fetch_latest_sanctions]
+other = "Tidak dapat memuat data sanksi terbaru. Silakan coba lagi."
+
+# =============================================================================
+# Procurement — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_procurement_search_failed]
+other = "Tidak dapat menyelesaikan pencarian pengadaan Anda. Silakan coba lagi."
+
+[error_procurement_detail_failed]
+other = "Tidak dapat memuat detail pengadaan. Silakan coba lagi."
+
+[error_procurement_not_found]
+other = "Data pengadaan yang diminta tidak ditemukan."
+
+[error_procurement_analytics_failed]
+other = "Tidak dapat memuat analitik pengadaan. Silakan coba lagi."
+
+[error_procurement_filters_failed]
+other = "Tidak dapat memuat filter pengadaan. Silakan coba lagi."
+
+[error_procurement_releases_failed]
+other = "Tidak dapat memuat rilis pengadaan. Silakan coba lagi."
+
+[error_procurement_invalid_sort]
+other = "Untuk mengurutkan berdasarkan relevansi, silakan masukkan kata pencarian terlebih dahulu."
+
+[error_procurement_invalid_cursor]
+other = "Tidak dapat memuat halaman ini. Silakan kembali dan coba lagi."
+
+[error_procurement_invalid_tender_id]
+other = "ID tender yang diberikan tidak valid."
+
+# =============================================================================
+# Chatbot — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_chatbot_invalid_body]
+other = "Permintaan Anda tidak dapat diproses. Silakan coba lagi."
+
+[error_chatbot_thread_required]
+other = "ID percakapan diperlukan untuk melanjutkan."
+
+[error_chatbot_message_required]
+other = "Silakan masukkan pesan sebelum mengirim."
+
+[error_chatbot_create_request_failed]
+other = "Tidak dapat mengirim pesan Anda. Silakan coba lagi."
+
+[error_chatbot_service_unavailable]
+other = "Asisten sedang tidak tersedia untuk sementara. Silakan coba lagi nanti."
+
+[error_chatbot_unexpected_response]
+other = "Kami menerima respons yang tidak terduga. Silakan coba lagi."
+
+[error_chatbot_read_response_failed]
+other = "Tidak dapat membaca respons. Silakan coba lagi."
+
+[error_chatbot_parse_response_failed]
+other = "Tidak dapat memproses respons. Silakan coba lagi."
+
+# =============================================================================
+# Analytics — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_analytics_overview_failed]
+other = "Tidak dapat memuat ringkasan analitik. Silakan coba lagi."
+
+[error_analytics_case_not_found]
+other = "Kasus yang diminta tidak ditemukan."
+
+[error_analytics_fetch_failed]
+other = "Tidak dapat memuat data analitik. Silakan coba lagi."
+
+[error_analytics_invalid_id]
+other = "ID yang diberikan tidak valid."
+
+[error_analytics_chart_failed]
+other = "Tidak dapat memuat data grafik. Silakan coba lagi."
+
+[error_analytics_detail_failed]
+other = "Tidak dapat memuat detail analitik. Silakan coba lagi."
+
+[error_analytics_filters_failed]
+other = "Tidak dapat memuat opsi filter. Silakan coba lagi."
+
+[error_analytics_timeline_failed]
+other = "Tidak dapat memuat data lini masa. Silakan coba lagi."
+
+[error_analytics_statistics_failed]
+other = "Tidak dapat memuat statistik. Silakan coba lagi."
+
+[error_analytics_trends_failed]
+other = "Tidak dapat memuat data tren. Silakan coba lagi."
+
+# =============================================================================
+# Egress — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_egress_invalid_cursor]
+other = "Tidak dapat memuat halaman ini. Silakan kembali dan coba lagi."
+
+[error_egress_invalid_limit]
+other = "Limit harus minimal 1."
+
+[error_egress_query_failed]
+other = "Tidak dapat menyelesaikan ekspor. Silakan coba lagi."
+
+[error_egress_timeout]
+other = "Ekspor memakan waktu terlalu lama. Silakan coba lagi atau persempit pencarian Anda."
+
+[error_egress_marshal_failed]
+other = "Tidak dapat menyiapkan data ekspor. Silakan coba lagi."
+
+[error_ocds_compiled_invalid_body]
+other = "Permintaan ekspor tidak dapat diproses. Periksa input Anda dan coba lagi."
+
+[error_ocds_compiled_invalid_chunk_size]
+other = "Ukuran chunk harus berada dalam batas yang diizinkan."
+
+[error_ocds_compiled_start_failed]
+other = "Tidak dapat memulai ekspor OCDS compiled JSON. Silakan coba lagi."
+
+[error_ocds_compiled_job_not_found]
+other = "Job ekspor tidak ditemukan atau sudah kedaluwarsa."
+
+[error_ocds_compiled_part_not_ready]
+other = "Part ekspor belum siap diunduh."
+
+[error_ocds_compiled_download_failed]
+other = "Tidak dapat mengunduh part ekspor. Silakan coba lagi."
+
+# =============================================================================
+# Council — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_council_read_body_failed]
+other = "Permintaan Anda tidak dapat diproses. Silakan coba lagi."
+
+[error_council_invalid_body]
+other = "Permintaan Anda tidak dapat diproses. Silakan periksa input Anda dan coba lagi."
+
+[error_council_invalid_case_type]
+other = "Silakan pilih jenis perkara yang valid."
+
+[error_council_create_request_failed]
+other = "Tidak dapat mengirim permintaan Anda. Silakan coba lagi."
+
+[error_council_service_unavailable]
+other = "Layanan deliberasi sedang tidak tersedia untuk sementara. Silakan coba lagi nanti."
+
+[error_council_unexpected_response]
+other = "Kami menerima respons yang tidak terduga. Silakan coba lagi."
+
+# =============================================================================
+# SPSE Year Validation (previously hardcoded)
+# =============================================================================
+
+[error_spse_invalid_start_year]
+other = "Silakan masukkan tahun awal yang valid."
+
+[error_spse_invalid_end_year]
+other = "Silakan masukkan tahun akhir yang valid."
+
+[error_spse_year_range_inverted]
+other = "Tahun awal harus kurang dari atau sama dengan tahun akhir."
+
+[error_spse_year_range_exceeded]
+other = "Rentang tahun tidak boleh lebih dari {{.Max}} tahun."
+
+[error_spse_year_too_early]
+other = "Tahun tidak boleh lebih awal dari {{.Min}}."
+
+[error_spse_year_too_late]
+other = "Tahun tidak boleh lebih dari {{.Max}}."
+
+[error_spse_dashboard_failed]
+other = "Tidak dapat memuat data dashboard. Silakan coba lagi."
+
+[error_spse_institutions_failed]
+other = "Tidak dapat memuat data instansi. Silakan coba lagi."
+
+[error_spse_fetch_procurement_types]
+other = "Tidak dapat memuat data tipe pengadaan. Silakan coba lagi."
+
+[error_spse_fetch_summary]
+other = "Tidak dapat memuat data ringkasan. Silakan coba lagi."
+
+[error_spse_fetch_distribution]
+other = "Tidak dapat memuat data distribusi. Silakan coba lagi."
+
+[error_spse_fetch_trends]
+other = "Tidak dapat memuat data tren. Silakan coba lagi."
+
+[error_spse_fetch_competition]
+other = "Tidak dapat memuat data kompetisi. Silakan coba lagi."
+
+[error_spse_fetch_top_tenders]
+other = "Tidak dapat memuat tender teratas. Silakan coba lagi."
+
+# =============================================================================
+# Council — Additional Error Messages
+# =============================================================================
+
+[error_council_streaming_unsupported]
+other = "Streaming tidak tersedia untuk permintaan ini."
+
+[error_council_timeout]
+other = "Layanan deliberasi memakan waktu terlalu lama. Silakan coba lagi."
+
+[error_council_cancelled]
+other = "Permintaan Anda telah dibatalkan."
+
+# =============================================================================
+# Chatbot — Additional Error Messages
+# =============================================================================
+
+[error_chatbot_fields_required]
+other = "Silakan berikan ID percakapan dan pesan."
+
+[error_chatbot_thread_too_long]
+other = "ID percakapan terlalu panjang (maksimal 100 karakter)."
+
+[error_chatbot_message_too_long]
+other = "Pesan Anda terlalu panjang. Gunakan kurang dari 5.000 karakter."
+
+[error_chatbot_invalid_request]
+other = "Permintaan Anda tidak dapat diproses. Silakan coba lagi."
+
+[error_chatbot_rate_limited]
+other = "Anda mengirim pesan terlalu cepat. Silakan tunggu sebentar dan coba lagi."
+
+[error_chatbot_timeout]
+other = "Asisten membutuhkan waktu terlalu lama untuk merespons. Silakan coba lagi."
+
+[error_chatbot_case_numbers_required]
+other = "Silakan berikan setidaknya satu nomor kasus."
+
+[error_chatbot_too_many_case_numbers]
+other = "Terlalu banyak nomor kasus yang dipilih. Silakan pilih maksimal 100."
+
+[error_chatbot_fetch_references_failed]
+other = "Tidak dapat memuat referensi kasus. Silakan coba lagi."
+
+# =============================================================================
+# Procurement — Additional Error Messages
+# =============================================================================
+
+[error_procurement_invalid_year]
+other = "Silakan masukkan tahun 4 digit yang valid (contoh: 2025)."
+
+[error_procurement_param_too_long]
+other = "Nilai {{.Param}} terlalu panjang (maksimal 500 karakter)."
+
+[error_procurement_invalid_sort_value]
+other = "Opsi pengurutan yang dipilih tidak valid. Pilihan yang tersedia: relevance, newest, oldest, name_asc, name_desc, budget_asc, atau budget_desc."
+
+[error_procurement_count_failed]
+other = "Tidak dapat menghitung hasil pencarian. Silakan coba lagi."
+
+[error_procurement_fetch_failed]
+other = "Tidak dapat memuat data pengadaan. Silakan coba lagi."
+
+[error_procurement_latest_failed]
+other = "Tidak dapat memuat tender terbaru. Silakan coba lagi."
+
+# =============================================================================
+# Analytics — Additional Error Messages
+# =============================================================================
+
+[error_analytics_verdict_count_failed]
+other = "Tidak dapat memuat jumlah putusan. Silakan coba lagi."
+
+[error_analytics_financial_failed]
+other = "Tidak dapat memuat ringkasan keuangan. Silakan coba lagi."
+
+[error_analytics_violations_failed]
+other = "Tidak dapat memuat pelanggaran teratas. Silakan coba lagi."
+
+[error_analytics_trend_failed]
+other = "Tidak dapat memuat tren kasus. Silakan coba lagi."
+
+[error_analytics_demographics_failed]
+other = "Tidak dapat memuat data demografi. Silakan coba lagi."
+
+[error_analytics_featured_failed]
+other = "Tidak dapat memuat kasus unggulan. Silakan coba lagi."
+
+[error_analytics_verdict_list_failed]
+other = "Tidak dapat memuat daftar putusan. Silakan coba lagi."
+
+[error_analytics_overviews_failed]
+other = "Tidak dapat memuat ringkasan kasus. Silakan coba lagi."
+
+[error_analytics_parse_failed]
+other = "Tidak dapat memproses data yang diekstraksi. Silakan coba lagi."
+
+[error_analytics_profiles_failed]
+other = "Tidak dapat memuat profil terdakwa. Silakan coba lagi."
+
+[error_analytics_financial_list_failed]
+other = "Tidak dapat memuat analisis keuangan. Silakan coba lagi."
+
+[error_analytics_sentence_failed]
+other = "Tidak dapat memuat detail hukuman. Silakan coba lagi."
+
+[error_analytics_timelines_failed]
+other = "Tidak dapat memuat lini masa kasus. Silakan coba lagi."
+
+[error_analytics_key_violations_failed]
+other = "Tidak dapat memuat pelanggaran utama. Silakan coba lagi."
+
+# =============================================================================
+# Screening — Pesan Kesalahan
+# =============================================================================
+
+[error_screening_invalid_query]
+other = "Silakan masukkan kueri pencarian yang valid."
+
+[error_screening_not_found]
+other = "Entitas yang diminta tidak ditemukan."
+
+[error_screening_failed]
+other = "Tidak dapat menyelesaikan pencarian penyaringan. Silakan coba lagi."
+
+[error_screening_invalid_entity_type]
+other = "Tipe entitas tidak valid. Harus 'person' atau 'organization'."
+
+[error_screening_invalid_topics]
+other = "Nilai topik tidak valid. Harus 'sanction', 'pep', atau 'blacklist'."
+
+[error_screening_invalid_sanctions_list_id]
+other = "Format ID daftar sanksi tidak valid."
+
+[error_screening_sources_failed]
+other = "Tidak dapat memuat sumber penyaringan. Silakan coba lagi."
+
+# =============================================================================
+# CMS Errors
+# =============================================================================
+
+[error_cms_not_found]
+other = "Konten yang diminta tidak ditemukan."
+
+[error_cms_invalid_input]
+other = "Input tidak valid. Silakan periksa dan coba lagi."
+
+[error_cms_duplicate_slug]
+other = "Konten dengan slug ini sudah ada."
+
+[error_cms_internal]
+other = "Terjadi kesalahan internal. Silakan coba lagi nanti."
+
+[error_cms_file_too_large]
+other = "File yang diunggah melebihi batas ukuran maksimum."
+
+[error_cms_invalid_mime_type]
+other = "Jenis file ini tidak diizinkan."
+
+[error_cms_storage_not_configured]
+other = "Penyimpanan file tidak dikonfigurasi."
+
+[error_cms_invalid_rating]
+other = "Rating harus antara 1 dan 5."
+
+[error_cms_invalid_target_language]
+other = "Bahasa target harus 'en' atau 'id'."
+
+[error_cms_translation_failed]
+other = "Penerjemahan gagal. Silakan coba lagi."
+
+[error_cms_invalid_url]
+other = "URL yang diberikan tidak valid."
+
+# =============================================================================
+# OIDC Authentication Errors
+# =============================================================================
+
+[error_oidc_not_configured]
+other = "Autentikasi OIDC belum dikonfigurasi."
+
+[error_oidc_auth_required]
+other = "Header otorisasi diperlukan."
+
+[error_oidc_invalid_format]
+other = "Format otorisasi tidak valid, diperlukan token Bearer."
+
+[error_oidc_invalid_token]
+other = "Token tidak valid atau telah kedaluwarsa."
+
+[error_oidc_permission_denied]
+other = "Anda tidak memiliki izin untuk melakukan tindakan ini."
+
+[error_oidc_issuer_unreachable]
+other = "Layanan autentikasi sedang tidak tersedia. Silakan coba lagi nanti."
+
+[error_admin_auth_state_mismatch]
+other = "Permintaan masuk tidak dapat diverifikasi. Silakan coba lagi."
+
+[error_admin_auth_exchange_failed]
+other = "Gagal masuk. Silakan coba lagi."
+
+[error_admin_auth_provider_unreachable]
+other = "Layanan autentikasi sedang tidak tersedia. Silakan coba lagi nanti."
+
+[error_admin_auth_callback_invalid]
+other = "Callback masuk tidak valid."
+
+[error_admin_session_expired]
+other = "Sesi admin Anda telah berakhir. Silakan masuk kembali."
+
+[error_admin_session_refresh_failed]
+other = "Sesi admin Anda tidak dapat diperbarui. Silakan masuk kembali."
+
+[error_crawler_upstream_unavailable]
+other = "Layanan crawler tidak tersedia"
+
+[error_crawler_bad_gateway]
+other = "Respon crawler tidak valid atau tidak dapat dijangkau"
+
+[error_crawler_timeout]
+other = "Permintaan ke layanan crawler melebihi batas waktu"
+
+[error_crawler_request_too_large]
+other = "Ukuran permintaan melebihi batas maksimum yang diizinkan."
+
+# =============================================================================
+# Rate limiting + deprecation errors
+# =============================================================================
+
+[error_rate_limit_exceeded]
+other = "Terlalu banyak permintaan. Silakan kurangi laju dan coba lagi."
+
+[error_cms_status_on_update_removed]
+other = "Field 'status' tidak lagi diterima saat update. Gunakan POST /v1/admin/{type}/{id}/publish untuk mempublikasikan konten."

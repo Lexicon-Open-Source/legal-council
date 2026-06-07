@@ -1,0 +1,762 @@
+# Lexicon Backend — English Translations
+# Must have identical key set to id.toml (validated by gen-i18n-keys).
+
+# =============================================================================
+# Case Types
+# =============================================================================
+
+[verdict]
+other = "verdict"
+
+[blacklist]
+other = "blacklist"
+
+[sanction]
+other = "sanction"
+
+# =============================================================================
+# Subject Types
+# =============================================================================
+
+[individual]
+other = "individual"
+
+[company]
+other = "company"
+
+[organization]
+other = "organization"
+
+[unknown]
+other = "unknown"
+
+# =============================================================================
+# Countries
+# =============================================================================
+
+[country_indonesia]
+other = "Indonesia"
+
+[country_malaysia]
+other = "Malaysia"
+
+[country_singapore]
+other = "Singapore"
+
+[country_global]
+other = "Global"
+
+# =============================================================================
+# OCDS Error Messages
+# =============================================================================
+
+[error_search_tenders]
+other = "Unable to complete your search. Please try again."
+
+[error_list_tenders]
+other = "Unable to load tender list. Please try again."
+
+[error_tender_not_found]
+other = "The requested tender could not be found."
+
+[error_analytics]
+other = "Unable to load analytics. Please try again."
+
+[error_filters]
+other = "Unable to load filter options. Please try again."
+
+[error_invalid_page]
+other = "Page number must be between 1 and 1,000."
+
+[error_query_too_long]
+other = "Search query is too long. Please use fewer than 500 characters."
+
+[error_sort_requires_query]
+other = "To sort by relevance, please enter a search term first."
+
+# =============================================================================
+# OCDS Filter Labels — Categories
+# =============================================================================
+
+[goods]
+other = "Goods"
+
+[works]
+other = "Works"
+
+[services]
+other = "Services"
+
+# =============================================================================
+# OCDS Filter Labels — Statuses
+# =============================================================================
+
+[status_planning]
+other = "Planning"
+
+[status_planned]
+other = "Planned"
+
+[status_active]
+other = "Active"
+
+[status_cancelled]
+other = "Cancelled"
+
+[status_unsuccessful]
+other = "Unsuccessful"
+
+[status_complete]
+other = "Complete"
+
+[status_withdrawn]
+other = "Withdrawn"
+
+# =============================================================================
+# SPSE Institution Type Labels
+# =============================================================================
+
+[inst_type_bumn]
+other = "State-Owned Enterprise"
+
+[inst_type_kementerian]
+other = "Ministry"
+
+[inst_type_lembaga]
+other = "Non-Ministerial Government Institution"
+
+[inst_type_pemerintah_daerah]
+other = "Regional Government"
+
+# =============================================================================
+# SPSE Dashboard — Value Buckets
+# =============================================================================
+
+[bucket_under_500m]
+other = "<500 Million"
+
+[bucket_500m_2_5b]
+other = "500 Million - 2.5 Billion"
+
+[bucket_2_5b_10b]
+other = "2.5 - 10 Billion"
+
+[bucket_over_10b]
+other = ">10 Billion"
+
+# =============================================================================
+# SPSE Dashboard — Participant Buckets
+# =============================================================================
+
+[bucket_1_15]
+other = "1-15 participants"
+
+[bucket_15_25]
+other = "15-25 participants"
+
+[bucket_25_35]
+other = "25-35 participants"
+
+[bucket_over_35]
+other = ">35 participants"
+
+# =============================================================================
+# SPSE Dashboard — Duration Buckets
+# =============================================================================
+
+[bucket_0_30]
+other = "0-30 days"
+
+[bucket_31_60]
+other = "31-60 days"
+
+[bucket_61_90]
+other = "61-90 days"
+
+[bucket_over_90]
+other = ">90 days"
+
+# =============================================================================
+# SPSE Dashboard — Savings Buckets
+# =============================================================================
+
+[bucket_0_5]
+other = "0-5%"
+
+[bucket_5_10]
+other = "5-10%"
+
+[bucket_10_20]
+other = "10-20%"
+
+[bucket_over_20]
+other = ">20%"
+
+# =============================================================================
+# SPSE Dashboard — Tender Result Buckets
+# =============================================================================
+
+[bucket_batal]
+other = "Cancelled"
+
+[bucket_gagal]
+other = "Failed"
+
+[bucket_selesai]
+other = "Completed"
+
+# =============================================================================
+# Turnstile Verification Errors
+# =============================================================================
+
+[error_turnstile_missing]
+other = "Please complete the security verification to continue."
+
+[error_turnstile_failed]
+other = "Security verification failed. Please try again."
+
+[error_session_token_expired]
+other = "Session expired. Please verify again."
+
+[error_session_token_invalid]
+other = "Invalid session token."
+
+[error_app_key_invalid]
+other = "Invalid application key."
+
+# =============================================================================
+# AML Screening Errors
+# =============================================================================
+
+[error_aml_screening_failed]
+other = "Unable to complete the screening. Please try again."
+
+[error_aml_invalid_request]
+other = "The screening request is not valid. Please check your input and try again."
+
+[error_aml_invalid_name]
+other = "Name must be between 2 and 200 characters."
+
+[error_aml_invalid_entity_type]
+other = "Please select either 'individual' or 'company' as the entity type."
+
+# =============================================================================
+# SPSE Dashboard — Conclusion Templates (named interpolation)
+# =============================================================================
+
+[conclusion_summary]
+other = "Total {{.Total}} tenders recorded with {{.Active}} still active across {{.Institutions}} institutions."
+
+[conclusion_value_distribution]
+other = "Most tenders ({{.Percentage}}) fall within the {{.Range}} range."
+
+[conclusion_procurement_type_count]
+other = "{{.Type}} dominates with {{.Percentage}} of all tenders by count."
+
+[conclusion_procurement_type_value]
+other = "{{.Type}} dominates with {{.Percentage}} of total tender value."
+
+[conclusion_participant_distribution]
+other = "Average {{.Average}} participants per tender. {{.MostCommonPct}} of tenders have {{.MostCommonRange}}. Single bidder rate is {{.SingleBidderRate}}."
+
+[conclusion_duration_distribution]
+other = "Average tender duration {{.Average}} days. {{.Within60Days}} of tenders completed within 60 days."
+
+[conclusion_tender_result]
+other = "Of finalized tenders, {{.Completed}} completed successfully, {{.Failed}} failed, and {{.Cancelled}} were cancelled."
+
+[conclusion_savings_distribution]
+other = "Average savings {{.Average}} from HPS. Total potential savings {{.TotalSavings}}."
+
+# =============================================================================
+# Beneficial Ownership — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_invalid_case_id]
+other = "The case ID provided is not valid. Please check and try again."
+
+[error_case_not_found]
+other = "The requested case could not be found."
+
+[error_fetch_chart_data]
+other = "Unable to load chart data. Please try again."
+
+[error_internal_server]
+other = "Something went wrong on our end. Please try again later."
+
+[error_fetch_case_detail]
+other = "Unable to load case details. Please try again."
+
+[error_fetch_search_results]
+other = "Unable to load search results. Please try again."
+
+[error_fetch_filters]
+other = "Unable to load filter options. Please try again."
+
+[error_invalid_page_range]
+other = "Page number must be between {{.Min}} and {{.Max}}."
+
+[error_invalid_page_size_range]
+other = "Page size must be between {{.Min}} and {{.Max}}."
+
+[error_invalid_year_range_format]
+other = "Please use the format YYYY-YYYY for year ranges (e.g., 2020-2023)."
+
+[error_year_range_min]
+other = "Year cannot be earlier than {{.Min}}."
+
+[error_year_range_max]
+other = "Year cannot be later than {{.Max}}."
+
+[error_year_range_inverted]
+other = "Start year must be less than or equal to end year."
+
+[error_year_range_span]
+other = "Year range cannot span more than {{.Max}} years."
+
+[error_year_numeric]
+other = "Please enter valid numeric years."
+
+[error_invalid_sort]
+other = "The selected sort option is not valid."
+
+# =============================================================================
+# Sanctions — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_fetch_latest_sanctions]
+other = "Unable to load latest sanctions. Please try again."
+
+# =============================================================================
+# Procurement — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_procurement_search_failed]
+other = "Unable to complete your procurement search. Please try again."
+
+[error_procurement_detail_failed]
+other = "Unable to load procurement details. Please try again."
+
+[error_procurement_not_found]
+other = "The requested procurement record could not be found."
+
+[error_procurement_analytics_failed]
+other = "Unable to load procurement analytics. Please try again."
+
+[error_procurement_filters_failed]
+other = "Unable to load procurement filters. Please try again."
+
+[error_procurement_releases_failed]
+other = "Unable to load procurement releases. Please try again."
+
+[error_procurement_invalid_sort]
+other = "To sort by relevance, please enter a search term first."
+
+[error_procurement_invalid_cursor]
+other = "Unable to load this page. Please go back and try again."
+
+[error_procurement_invalid_tender_id]
+other = "The tender ID provided is not valid."
+
+# =============================================================================
+# Chatbot — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_chatbot_invalid_body]
+other = "Your request could not be processed. Please try again."
+
+[error_chatbot_thread_required]
+other = "A conversation ID is required to continue."
+
+[error_chatbot_message_required]
+other = "Please enter a message before sending."
+
+[error_chatbot_create_request_failed]
+other = "Unable to send your message. Please try again."
+
+[error_chatbot_service_unavailable]
+other = "The assistant is temporarily unavailable. Please try again later."
+
+[error_chatbot_unexpected_response]
+other = "We received an unexpected response. Please try again."
+
+[error_chatbot_read_response_failed]
+other = "Unable to read the response. Please try again."
+
+[error_chatbot_parse_response_failed]
+other = "Unable to process the response. Please try again."
+
+# =============================================================================
+# Analytics — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_analytics_overview_failed]
+other = "Unable to load analytics overview. Please try again."
+
+[error_analytics_case_not_found]
+other = "The requested case could not be found."
+
+[error_analytics_fetch_failed]
+other = "Unable to load analytics data. Please try again."
+
+[error_analytics_invalid_id]
+other = "The provided ID is not valid."
+
+[error_analytics_chart_failed]
+other = "Unable to load chart data. Please try again."
+
+[error_analytics_detail_failed]
+other = "Unable to load analytics details. Please try again."
+
+[error_analytics_filters_failed]
+other = "Unable to load filter options. Please try again."
+
+[error_analytics_timeline_failed]
+other = "Unable to load timeline data. Please try again."
+
+[error_analytics_statistics_failed]
+other = "Unable to load statistics. Please try again."
+
+[error_analytics_trends_failed]
+other = "Unable to load trend data. Please try again."
+
+# =============================================================================
+# Egress — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_egress_invalid_cursor]
+other = "Unable to load this page. Please go back and try again."
+
+[error_egress_invalid_limit]
+other = "Limit must be at least 1."
+
+[error_egress_query_failed]
+other = "Unable to complete the export. Please try again."
+
+[error_egress_timeout]
+other = "The export is taking too long. Please try again or use a narrower search."
+
+[error_egress_marshal_failed]
+other = "Unable to prepare the export data. Please try again."
+
+[error_ocds_compiled_invalid_body]
+other = "Unable to process the export request. Please check your input and try again."
+
+[error_ocds_compiled_invalid_chunk_size]
+other = "Chunk size must be within the allowed range."
+
+[error_ocds_compiled_start_failed]
+other = "Unable to start the compiled OCDS JSON export. Please try again."
+
+[error_ocds_compiled_job_not_found]
+other = "Export job was not found or has expired."
+
+[error_ocds_compiled_part_not_ready]
+other = "Export part is not ready to download yet."
+
+[error_ocds_compiled_download_failed]
+other = "Unable to download the export part. Please try again."
+
+# =============================================================================
+# Council — Error Messages (previously hardcoded)
+# =============================================================================
+
+[error_council_read_body_failed]
+other = "Your request could not be processed. Please try again."
+
+[error_council_invalid_body]
+other = "Your request could not be processed. Please check your input and try again."
+
+[error_council_invalid_case_type]
+other = "Please choose a valid case type."
+
+[error_council_create_request_failed]
+other = "Unable to send your request. Please try again."
+
+[error_council_service_unavailable]
+other = "The deliberation service is temporarily unavailable. Please try again later."
+
+[error_council_unexpected_response]
+other = "We received an unexpected response. Please try again."
+
+# =============================================================================
+# SPSE Year Validation (previously hardcoded)
+# =============================================================================
+
+[error_spse_invalid_start_year]
+other = "Please enter a valid start year."
+
+[error_spse_invalid_end_year]
+other = "Please enter a valid end year."
+
+[error_spse_year_range_inverted]
+other = "Start year must be less than or equal to end year."
+
+[error_spse_year_range_exceeded]
+other = "Year range cannot span more than {{.Max}} years."
+
+[error_spse_year_too_early]
+other = "Year cannot be earlier than {{.Min}}."
+
+[error_spse_year_too_late]
+other = "Year cannot be later than {{.Max}}."
+
+[error_spse_dashboard_failed]
+other = "Unable to load dashboard data. Please try again."
+
+[error_spse_institutions_failed]
+other = "Unable to load institution data. Please try again."
+
+[error_spse_fetch_procurement_types]
+other = "Unable to load procurement type data. Please try again."
+
+[error_spse_fetch_summary]
+other = "Unable to load summary data. Please try again."
+
+[error_spse_fetch_distribution]
+other = "Unable to load distribution data. Please try again."
+
+[error_spse_fetch_trends]
+other = "Unable to load trend data. Please try again."
+
+[error_spse_fetch_competition]
+other = "Unable to load competition data. Please try again."
+
+[error_spse_fetch_top_tenders]
+other = "Unable to load top tenders. Please try again."
+
+# =============================================================================
+# Council — Additional Error Messages
+# =============================================================================
+
+[error_council_streaming_unsupported]
+other = "Streaming is not available for this request."
+
+[error_council_timeout]
+other = "The deliberation service is taking too long. Please try again."
+
+[error_council_cancelled]
+other = "Your request was cancelled."
+
+# =============================================================================
+# Chatbot — Additional Error Messages
+# =============================================================================
+
+[error_chatbot_fields_required]
+other = "Please provide both a conversation ID and a message."
+
+[error_chatbot_thread_too_long]
+other = "Conversation ID is too long (maximum 100 characters)."
+
+[error_chatbot_message_too_long]
+other = "Your message is too long. Please use fewer than 5,000 characters."
+
+[error_chatbot_invalid_request]
+other = "Your request could not be processed. Please try again."
+
+[error_chatbot_rate_limited]
+other = "You're sending messages too quickly. Please wait a moment and try again."
+
+[error_chatbot_timeout]
+other = "The assistant is taking too long to respond. Please try again."
+
+[error_chatbot_case_numbers_required]
+other = "Please provide at least one case number."
+
+[error_chatbot_too_many_case_numbers]
+other = "Too many case numbers selected. Please select up to 100."
+
+[error_chatbot_fetch_references_failed]
+other = "Unable to load case references. Please try again."
+
+# =============================================================================
+# Procurement — Additional Error Messages
+# =============================================================================
+
+[error_procurement_invalid_year]
+other = "Please enter a valid 4-digit year (e.g., 2025)."
+
+[error_procurement_param_too_long]
+other = "The {{.Param}} value is too long (maximum 500 characters)."
+
+[error_procurement_invalid_sort_value]
+other = "The selected sort option is not valid. Available options: relevance, newest, oldest, name_asc, name_desc, budget_asc, or budget_desc."
+
+[error_procurement_count_failed]
+other = "Unable to count search results. Please try again."
+
+[error_procurement_fetch_failed]
+other = "Unable to load procurement data. Please try again."
+
+[error_procurement_latest_failed]
+other = "Unable to load latest tenders. Please try again."
+
+# =============================================================================
+# Analytics — Additional Error Messages
+# =============================================================================
+
+[error_analytics_verdict_count_failed]
+other = "Unable to load verdict count. Please try again."
+
+[error_analytics_financial_failed]
+other = "Unable to load financial overview. Please try again."
+
+[error_analytics_violations_failed]
+other = "Unable to load top violations. Please try again."
+
+[error_analytics_trend_failed]
+other = "Unable to load case trends. Please try again."
+
+[error_analytics_demographics_failed]
+other = "Unable to load demographics data. Please try again."
+
+[error_analytics_featured_failed]
+other = "Unable to load featured cases. Please try again."
+
+[error_analytics_verdict_list_failed]
+other = "Unable to load verdict list. Please try again."
+
+[error_analytics_overviews_failed]
+other = "Unable to load case overviews. Please try again."
+
+[error_analytics_parse_failed]
+other = "Unable to process the extracted data. Please try again."
+
+[error_analytics_profiles_failed]
+other = "Unable to load defendant profiles. Please try again."
+
+[error_analytics_financial_list_failed]
+other = "Unable to load financial analyses. Please try again."
+
+[error_analytics_sentence_failed]
+other = "Unable to load sentence details. Please try again."
+
+[error_analytics_timelines_failed]
+other = "Unable to load case timelines. Please try again."
+
+[error_analytics_key_violations_failed]
+other = "Unable to load key violations. Please try again."
+
+# =============================================================================
+# Screening — Error Messages
+# =============================================================================
+
+[error_screening_invalid_query]
+other = "Please enter a valid search query."
+
+[error_screening_not_found]
+other = "The requested entity could not be found."
+
+[error_screening_failed]
+other = "Unable to complete the screening search. Please try again."
+
+[error_screening_invalid_entity_type]
+other = "Invalid entity type. Must be 'person' or 'organization'."
+
+[error_screening_invalid_topics]
+other = "Invalid topic value. Must be 'sanction', 'pep', or 'blacklist'."
+
+[error_screening_invalid_sanctions_list_id]
+other = "Invalid sanctions list ID format."
+
+[error_screening_sources_failed]
+other = "Unable to load screening sources. Please try again."
+
+# =============================================================================
+# CMS Errors
+# =============================================================================
+
+[error_cms_not_found]
+other = "The requested content was not found."
+
+[error_cms_invalid_input]
+other = "Invalid input. Please check the request and try again."
+
+[error_cms_duplicate_slug]
+other = "A content item with this slug already exists."
+
+[error_cms_internal]
+other = "An internal error occurred. Please try again later."
+
+[error_cms_file_too_large]
+other = "The uploaded file exceeds the maximum allowed size."
+
+[error_cms_invalid_mime_type]
+other = "This file type is not allowed."
+
+[error_cms_storage_not_configured]
+other = "File storage is not configured."
+
+[error_cms_invalid_rating]
+other = "Rating must be between 1 and 5."
+
+[error_cms_invalid_target_language]
+other = "Target language must be 'en' or 'id'."
+
+[error_cms_translation_failed]
+other = "Translation failed. Please try again."
+
+[error_cms_invalid_url]
+other = "The provided URL is not valid."
+
+# =============================================================================
+# OIDC Authentication Errors
+# =============================================================================
+
+[error_oidc_not_configured]
+other = "OIDC authentication not configured."
+
+[error_oidc_auth_required]
+other = "Authorization header required."
+
+[error_oidc_invalid_format]
+other = "Invalid authorization format, expected Bearer token."
+
+[error_oidc_invalid_token]
+other = "Invalid or expired token."
+
+[error_oidc_permission_denied]
+other = "You do not have permission to perform this action."
+
+[error_oidc_issuer_unreachable]
+other = "Authentication service is currently unavailable. Please try again later."
+
+[error_admin_auth_state_mismatch]
+other = "The sign-in request could not be verified. Please try again."
+
+[error_admin_auth_exchange_failed]
+other = "Sign-in failed. Please try again."
+
+[error_admin_auth_provider_unreachable]
+other = "Authentication service is temporarily unavailable. Please try again later."
+
+[error_admin_auth_callback_invalid]
+other = "The sign-in callback is not valid."
+
+[error_admin_session_expired]
+other = "Your admin session has expired. Please sign in again."
+
+[error_admin_session_refresh_failed]
+other = "Your admin session could not be refreshed. Please sign in again."
+
+[error_crawler_upstream_unavailable]
+other = "Crawler service is unavailable"
+
+[error_crawler_bad_gateway]
+other = "Invalid or unreachable crawler service response"
+
+[error_crawler_timeout]
+other = "Crawler service request timed out"
+
+[error_crawler_request_too_large]
+other = "Request body exceeds the maximum allowed size."
+
+# =============================================================================
+# Rate limiting + deprecation errors
+# =============================================================================
+
+[error_rate_limit_exceeded]
+other = "Too many requests. Please slow down and try again."
+
+[error_cms_status_on_update_removed]
+other = "The 'status' field is no longer accepted on update. Use POST /v1/admin/{type}/{id}/publish to publish content."

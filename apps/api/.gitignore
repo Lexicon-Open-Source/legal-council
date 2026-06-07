@@ -1,0 +1,68 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+coverage.html
+
+# Dependency directories
+vendor/
+node_modules/
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Local secrets (never commit)
+secrets/
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Air (hot reload) temp files
+tmp/
+.air.toml
+
+# Database
+*.db
+*.sqlite
+
+# Generated code is now tracked in git to enable sync checks in CI
+# (Previously gitignored, but CI needs to detect drift)
+
+# Logs
+*.log
+logs/
+
+# SSH Keys
+deploy_key
+deploy_key.pub
+
+# Agent worktrees
+.worktrees/
+.codex/worktrees/*
+!.codex/worktrees/.gitkeep
+.claude/worktrees/*
+!.claude/worktrees/.gitkeep
+
+# Compound-engineering local config (Codex delegation consent, etc.)
+.compound-engineering/

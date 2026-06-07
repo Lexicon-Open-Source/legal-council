@@ -1,0 +1,234 @@
+# Common schemas
+# Part of the Lexicon Backend API specification
+
+PaginationMeta:
+  type: object
+  required:
+  - current_page
+  - last_page
+  - per_page
+  - total
+  properties:
+    current_page:
+      type: integer
+    last_page:
+      type: integer
+    per_page:
+      type: integer
+    total:
+      type: integer
+ChartItem:
+  type: object
+  required:
+  - label
+  - value
+  properties:
+    label:
+      type: string
+    value:
+      type: number
+Error:
+  type: object
+  required:
+  - error
+  properties:
+    error:
+      type: string
+    status_code:
+      type: integer
+FilterOption:
+  type: object
+  required:
+  - value
+  - label
+  properties:
+    value:
+      type: string
+    label:
+      type: string
+    count:
+      type: integer
+      nullable: true
+      description: Optional - number of records with this value
+YearRange:
+  type: object
+  required:
+  - min
+  - max
+  properties:
+    min:
+      type: integer
+    max:
+      type: integer
+MessageIntent:
+  type: string
+  description: Intent classification for user messages
+  enum:
+  - ask_opinion
+  - request_comparison
+  - challenge_view
+  - seek_consensus
+  - general_question
+  - address_agent
+  - introduce_evidence
+  - request_summary
+  - override_suggestion
+SenderType:
+  type: string
+  description: Type of message sender
+  enum:
+  - user
+  - agent
+  - system
+GetSessionResponse:
+  type: object
+  description: Response for getting a session
+  required:
+  - session
+  properties:
+    session:
+      $ref: ./council.yaml#/DeliberationSession
+ListSessionsResponse:
+  type: object
+  description: Response for listing sessions
+  required:
+  - sessions
+  - pagination
+  properties:
+    sessions:
+      type: array
+      items:
+        $ref: ./council.yaml#/DeliberationSession
+    pagination:
+      type: object
+      additionalProperties:
+        type: integer
+GetMessagesResponse:
+  type: object
+  description: Response for getting messages
+  required:
+  - messages
+  properties:
+    messages:
+      type: array
+      items:
+        $ref: ./council.yaml#/DeliberationMessage
+GenerateOpinionRequest:
+  type: object
+  description: Request to generate a legal opinion
+  properties:
+    include_dissent:
+      type: boolean
+      default: true
+SearchCasesRequest:
+  type: object
+  description: Request for searching cases
+  required:
+  - query
+  properties:
+    query:
+      type: string
+    limit:
+      type: integer
+      default: 10
+    semantic_search:
+      type: boolean
+      default: true
+    filters:
+      $ref: ./council.yaml#/StructuredCaseData
+CaseRecord:
+  type: object
+  description: A case record from the database
+  properties:
+    id:
+      type: string
+    case_number:
+      type: string
+      nullable: true
+    case_type:
+      $ref: ./council.yaml#/CouncilCaseType
+    court_name:
+      type: string
+      nullable: true
+    court_type:
+      type: string
+      nullable: true
+    decision_date:
+      type: string
+      nullable: true
+    defendant_name:
+      type: string
+      nullable: true
+    defendant_age:
+      type: integer
+      nullable: true
+    defendant_first_offender:
+      type: boolean
+      nullable: true
+    indictment:
+      type: object
+      nullable: true
+    narcotics_details:
+      type: object
+      nullable: true
+    corruption_details:
+      type: object
+      nullable: true
+    legal_facts:
+      type: object
+      nullable: true
+    verdict:
+      type: object
+      nullable: true
+    legal_basis:
+      type: array
+      items:
+        type: string
+      nullable: true
+    is_landmark_case:
+      type: boolean
+      default: false
+    extraction_result:
+      type: object
+      nullable: true
+    summary_en:
+      type: string
+      nullable: true
+    summary_id:
+      type: string
+      nullable: true
+SearchCasesResponse:
+  type: object
+  description: Response for case search
+  required:
+  - cases
+  - total
+  properties:
+    cases:
+      type: array
+      items:
+        $ref: '#/CaseRecord'
+    total:
+      type: integer
+GetCaseResponse:
+  type: object
+  description: Response for getting a single case
+  required:
+  - case
+  properties:
+    case:
+      $ref: '#/CaseRecord'
+CaseStatisticsResponse:
+  type: object
+  description: Response for case statistics
+  required:
+  - total_cases
+  - sentence_distribution
+  - verdict_distribution
+  properties:
+    total_cases:
+      type: integer
+    sentence_distribution:
+      type: object
+    verdict_distribution:
+      type: object

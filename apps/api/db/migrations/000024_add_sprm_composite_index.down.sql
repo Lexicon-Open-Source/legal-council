@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS crawler.idx_sprm_offenders_state_category_created;

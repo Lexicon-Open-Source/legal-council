@@ -1,0 +1,17 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "go run ./cmd/api",
+    "build": "go build -o bin/api ./cmd/api",
+    "start": "./bin/api",
+    "lint": "go vet ./...",
+    "test": "go test ./...",
+    "api-bundle": "redocly bundle api/openapi.yaml -o api/openapi-bundled.yaml --ext yaml",
+    "api-generate": "oapi-codegen --config oapi-codegen.yaml api/openapi-bundled.yaml"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.29.0"
+  }
+}

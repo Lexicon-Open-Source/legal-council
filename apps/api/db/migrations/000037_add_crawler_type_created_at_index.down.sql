@@ -1,0 +1,1 @@
+DROP INDEX CONCURRENTLY IF EXISTS crawler.ix_crawler_jobs_crawler_type_created_at;

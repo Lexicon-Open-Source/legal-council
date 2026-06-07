@@ -1,0 +1,7 @@
+# Compiled binary produced by `go build` inside this folder.
+# Always run via `go run .` from the repo root instead of committing a build.
+fake-authentik
+
+# Directory the process accidentally creates when run from an odd cwd;
+# no useful contents ever land here.
+docs/

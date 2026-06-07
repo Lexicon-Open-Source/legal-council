@@ -1,0 +1,2102 @@
+openapi: 3.0.3
+info:
+  title: Lexicon Backend API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development
+paths:
+  /v1/council/sessions:
+    post:
+      summary: Create new deliberation session
+      description: |
+        Creates a deliberation session from a case summary.
+
+        By default this endpoint returns JSON after the first initial judge
+        message has been generated. When the request includes
+        `Accept: text/event-stream`, the same creation flow is streamed as SSE:
+        setup progress, session creation, first judge chunks, and a final
+        completion event. The existing
+        `/v1/council/deliberation/{session_id}/stream/initial` endpoint can then
+        stream the remaining initial judges.
+      operationId: createCouncilSession
+      tags:
+        - council
+      security:
+        - TurnstileToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+            example:
+              case_summary: Terdakwa Budi Santoso, PNS Golongan IV/a pada Dinas PUPR Kabupaten X, didakwa telah melakukan tindak pidana korupsi terkait proyek pembangunan jalan senilai Rp 15 miliar. Jaksa mendakwa terdakwa telah menerima suap sebesar Rp 500 juta dari kontraktor PT Maju Jaya untuk memenangkan tender proyek tersebut. Terdakwa merupakan pelaku pertama kali dengan masa kerja 20 tahun. Kerugian negara yang terbukti adalah Rp 2,5 miliar akibat mark-up harga dan kualitas material yang tidak sesuai spesifikasi.
+              case_type: corruption
+              structured_data:
+                defendant_age: 52
+                defendant_first_offender: true
+                state_loss_idr: 2500000000
+              input_type: text_summary
+      responses:
+        '200':
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSessionResponse'
+              example:
+                session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                parsed_case:
+                  case_type: corruption
+                  summary: Kasus korupsi proyek pembangunan jalan senilai Rp 15 miliar
+                  defendant_profile:
+                    is_first_offender: true
+                    age: 52
+                    occupation: PNS Golongan IV/a Dinas PUPR
+                  key_facts:
+                    - Menerima suap Rp 500 juta dari kontraktor
+                    - Mark-up harga proyek
+                    - Kualitas material tidak sesuai spesifikasi
+                  charges:
+                    - Pasal 12 huruf a UU 31/1999 jo UU 20/2001
+                    - Pasal 3 UU 31/1999
+                  corruption:
+                    state_loss_idr: 2500000000
+                    position: Kepala Dinas PUPR
+                similar_cases: []
+                initial_message:
+                  id: msg_001
+                  session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                  sender:
+                    type: agent
+                    agent_id: strict
+                  content: Berdasarkan fakta hukum yang terungkap, terdakwa jelas telah melanggar Pasal 12 huruf a UU Tipikor...
+                  cited_cases:
+                    - 01HN6ABC123
+                  cited_laws:
+                    - Pasal 12 huruf a UU 31/1999
+                  timestamp: '2024-03-15T10:30:00Z'
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/CreateSessionStreamEventData'
+              example:
+                event_type: session_created
+                session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                parsed_case:
+                  case_type: corruption
+                  summary: Kasus korupsi proyek pembangunan jalan senilai Rp 15 miliar
+                similar_cases: []
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: case_summary must be at least 50 characters
+                status_code: 400
+    get:
+      summary: List deliberation sessions
+      operationId: listCouncilSessions
+      tags:
+        - council
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - active
+              - concluded
+              - archived
+          description: Filter by session status
+          example: active
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          example: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 0
+      responses:
+        '200':
+          description: Sessions list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSessionsResponse'
+              example:
+                sessions:
+                  - id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    status: active
+                    case_input:
+                      input_type: text_summary
+                      raw_input: Terdakwa Budi Santoso...
+                      parsed_case:
+                        case_type: corruption
+                        summary: Kasus korupsi proyek pembangunan jalan
+                    similar_cases: []
+                    messages: []
+                    created_at: '2024-03-15T10:30:00Z'
+                    updated_at: '2024-03-15T10:30:00Z'
+                  - id: sess_01HN6VJKM4XPQW3B5RTCDEFGHJ
+                    status: concluded
+                    case_input:
+                      input_type: text_summary
+                      raw_input: Terdakwa Ahmad Hidayat...
+                      parsed_case:
+                        case_type: narcotics
+                        summary: Kasus kepemilikan narkotika jenis sabu
+                    similar_cases: []
+                    messages: []
+                    created_at: '2024-03-14T09:00:00Z'
+                    updated_at: '2024-03-14T15:30:00Z'
+                    concluded_at: '2024-03-14T15:30:00Z'
+                pagination:
+                  limit: 20
+                  offset: 0
+                  total: 25
+  /v1/council/sessions/{session_id}:
+    get:
+      summary: Get session details
+      operationId: getCouncilSession
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSessionResponse'
+              example:
+                session:
+                  id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                  status: active
+                  case_input:
+                    input_type: text_summary
+                    raw_input: Terdakwa Budi Santoso, PNS Golongan IV/a pada Dinas PUPR...
+                    parsed_case:
+                      case_type: corruption
+                      summary: Kasus korupsi proyek pembangunan jalan senilai Rp 15 miliar
+                      defendant_profile:
+                        is_first_offender: true
+                        age: 52
+                        occupation: PNS Golongan IV/a Dinas PUPR
+                      key_facts:
+                        - Menerima suap Rp 500 juta dari kontraktor
+                        - Kerugian negara Rp 2,5 miliar
+                      charges:
+                        - Pasal 12 huruf a UU 31/1999
+                      corruption:
+                        state_loss_idr: 2500000000
+                        position: Kepala Dinas PUPR
+                  similar_cases:
+                    - case_id: 01HN6ABC123
+                      case_number: 45/Pid.Sus-TPK/2023/PN.Jkt.Pst
+                      similarity_score: 0.87
+                      similarity_reason: Kasus korupsi proyek infrastruktur dengan modus mark-up serupa
+                      verdict_summary: Terdakwa terbukti bersalah, divonis 6 tahun penjara
+                      sentence_months: 72
+                  messages:
+                    - id: msg_001
+                      session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                      sender:
+                        type: agent
+                        agent_id: strict
+                      content: Berdasarkan fakta hukum, terdakwa jelas melanggar Pasal 12 huruf a...
+                      cited_cases:
+                        - 01HN6ABC123
+                      cited_laws:
+                        - Pasal 12 huruf a UU 31/1999
+                      timestamp: '2024-03-15T10:30:00Z'
+                  legal_opinion: null
+                  created_at: '2024-03-15T10:30:00Z'
+                  updated_at: '2024-03-15T10:35:00Z'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: session not found
+                status_code: 404
+    delete:
+      summary: Delete session
+      operationId: deleteCouncilSession
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: Session deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: session deleted successfully
+  /v1/council/sessions/{session_id}/conclude:
+    post:
+      summary: Conclude deliberation session
+      operationId: concludeCouncilSession
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: Session concluded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSessionResponse'
+              example:
+                session:
+                  id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                  status: concluded
+                  case_input:
+                    input_type: text_summary
+                    raw_input: Terdakwa Budi Santoso...
+                    parsed_case:
+                      case_type: corruption
+                      summary: Kasus korupsi proyek pembangunan jalan
+                  similar_cases: []
+                  messages: []
+                  legal_opinion: null
+                  created_at: '2024-03-15T10:30:00Z'
+                  updated_at: '2024-03-15T12:00:00Z'
+                  concluded_at: '2024-03-15T12:00:00Z'
+  /v1/council/deliberation/{session_id}/message:
+    post:
+      summary: Send message to council
+      operationId: sendCouncilMessage
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+            example:
+              content: Bagaimana pendapat Hakim Humanis mengenai faktor-faktor yang meringankan terdakwa, mengingat ini adalah pelanggaran pertamanya?
+              target_agent: humanis
+      responses:
+        '200':
+          description: Message sent and response received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMessageResponse'
+              example:
+                user_message:
+                  id: msg_002
+                  session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                  sender:
+                    type: user
+                  content: Bagaimana pendapat Hakim Humanis mengenai faktor-faktor yang meringankan terdakwa?
+                  intent: ask_opinion
+                  cited_cases: []
+                  cited_laws: []
+                  timestamp: '2024-03-15T10:35:00Z'
+                agent_responses:
+                  - id: msg_003
+                    session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    sender:
+                      type: agent
+                      agent_id: humanist
+                    content: Terima kasih atas pertanyaannya. Dalam mempertimbangkan faktor-faktor yang meringankan, kita perlu melihat bahwa terdakwa adalah pelaku pertama kali dengan rekam jejak pelayanan publik selama 20 tahun. Hal ini menunjukkan bahwa tindakan korupsi ini mungkin bukan cerminan karakter sejatinya...
+                    intent: null
+                    cited_cases:
+                      - 01HN6DEF456
+                    cited_laws:
+                      - Pasal 53 KUHP
+                    timestamp: '2024-03-15T10:35:15Z'
+  /v1/council/deliberation/{session_id}/continue:
+    post:
+      summary: Continue deliberation
+      operationId: continueCouncilDiscussion
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContinueDiscussionRequest'
+            example:
+              num_rounds: 2
+      responses:
+        '200':
+          description: Deliberation continued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContinueDiscussionResponse'
+              example:
+                new_messages:
+                  - id: msg_004
+                    session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    sender:
+                      type: agent
+                      agent_id: strict
+                    content: Saya tidak sependapat dengan Hakim Humanis. Meskipun terdakwa adalah pelaku pertama kali, kerugian negara yang ditimbulkan sangat besar...
+                    cited_cases: []
+                    cited_laws:
+                      - Pasal 2 ayat (1) UU 31/1999
+                    timestamp: '2024-03-15T10:40:00Z'
+                  - id: msg_005
+                    session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    sender:
+                      type: agent
+                      agent_id: historian
+                    content: Jika kita melihat preseden dalam kasus serupa, putusan MA No. 1261 K/Pid.Sus/2015 memberikan panduan bahwa...
+                    cited_cases:
+                      - 01HN6GHI789
+                    cited_laws: []
+                    timestamp: '2024-03-15T10:40:30Z'
+                total_messages: 8
+  /v1/council/deliberation/{session_id}/messages:
+    get:
+      summary: Get deliberation messages
+      operationId: getCouncilMessages
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+          example: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 0
+      responses:
+        '200':
+          description: Messages list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMessagesResponse'
+              example:
+                messages:
+                  - id: msg_001
+                    session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    sender:
+                      type: agent
+                      agent_id: strict
+                    content: Berdasarkan fakta hukum yang terungkap, terdakwa jelas telah melanggar Pasal 12 huruf a UU Tipikor...
+                    cited_cases:
+                      - 01HN6ABC123
+                    cited_laws:
+                      - Pasal 12 huruf a UU 31/1999
+                    timestamp: '2024-03-15T10:30:00Z'
+                  - id: msg_002
+                    session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    sender:
+                      type: user
+                    content: Bagaimana pendapat Hakim Humanis mengenai faktor yang meringankan?
+                    intent: ask_opinion
+                    cited_cases: []
+                    cited_laws: []
+                    timestamp: '2024-03-15T10:35:00Z'
+                  - id: msg_003
+                    session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                    sender:
+                      type: agent
+                      agent_id: humanist
+                    content: Dalam mempertimbangkan faktor meringankan, terdakwa adalah pelaku pertama kali...
+                    cited_cases:
+                      - 01HN6DEF456
+                    cited_laws:
+                      - Pasal 53 KUHP
+                    timestamp: '2024-03-15T10:35:15Z'
+  /v1/council/deliberation/{session_id}/opinion:
+    post:
+      summary: Generate legal opinion
+      operationId: generateCouncilOpinion
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateOpinionRequest'
+            example:
+              include_dissent: true
+      responses:
+        '200':
+          description: Opinion generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateOpinionResponse'
+              example:
+                opinion:
+                  session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                  generated_at: '2024-03-15T11:00:00Z'
+                  case_summary: Kasus korupsi proyek pembangunan jalan dengan kerugian negara Rp 2,5 miliar
+                  verdict_recommendation:
+                    decision: guilty
+                    confidence: high
+                    reasoning: Fakta hukum menunjukkan terdakwa terbukti menerima suap dan menyalahgunakan wewenang jabatan
+                  sentence_recommendation:
+                    imprisonment_months:
+                      minimum: 48
+                      maximum: 72
+                      recommended: 60
+                    fine_idr:
+                      minimum: 200000000
+                      maximum: 500000000
+                      recommended: 300000000
+                    additional_penalties:
+                      - Pencabutan hak politik selama 3 tahun
+                      - Membayar uang pengganti Rp 2,5 miliar
+                  legal_arguments:
+                    for_conviction:
+                      - argument: Bukti transfer dana dari kontraktor ke rekening terdakwa
+                        source_agent: strict
+                        supporting_cases:
+                          - 01HN6ABC123
+                        strength: strong
+                    for_leniency:
+                      - argument: Terdakwa adalah pelaku pertama kali dengan rekam jejak baik
+                        source_agent: humanist
+                        supporting_cases: []
+                        strength: moderate
+                    for_severity:
+                      - argument: Kerugian negara sangat besar dan berdampak pada pembangunan infrastruktur
+                        source_agent: strict
+                        supporting_cases:
+                          - 01HN6GHI789
+                        strength: strong
+                  cited_precedents:
+                    - case_id: 01HN6ABC123
+                      case_number: 45/Pid.Sus-TPK/2023/PN.Jkt.Pst
+                      relevance: Kasus korupsi proyek infrastruktur serupa
+                      verdict_summary: Terbukti bersalah, 6 tahun penjara
+                      how_it_applies: Modus operandi mark-up harga identik
+                  applicable_laws:
+                    - law_reference: Pasal 12 huruf a UU 31/1999 jo UU 20/2001
+                      description: Penerimaan suap oleh penyelenggara negara
+                      how_it_applies: Terdakwa menerima Rp 500 juta untuk memenangkan tender
+                    - law_reference: Pasal 3 UU 31/1999
+                      description: Penyalahgunaan wewenang jabatan
+                      how_it_applies: Terdakwa menggunakan jabatan untuk mengatur pemenang tender
+                  dissenting_views:
+                    - Hakim Humanis berpendapat vonis sebaiknya di bawah 5 tahun mengingat terdakwa adalah pelaku pertama kali
+    get:
+      summary: Get generated opinion
+      operationId: getCouncilOpinion
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: Opinion details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateOpinionResponse'
+              example:
+                opinion:
+                  session_id: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+                  generated_at: '2024-03-15T11:00:00Z'
+                  case_summary: Kasus korupsi proyek pembangunan jalan
+                  verdict_recommendation:
+                    decision: guilty
+                    confidence: high
+                    reasoning: Terdakwa terbukti menerima suap dan menyalahgunakan wewenang
+                  sentence_recommendation:
+                    imprisonment_months:
+                      minimum: 48
+                      maximum: 72
+                      recommended: 60
+                    fine_idr:
+                      minimum: 200000000
+                      maximum: 500000000
+                      recommended: 300000000
+                    additional_penalties:
+                      - Pencabutan hak politik selama 3 tahun
+                  legal_arguments:
+                    for_conviction: []
+                    for_leniency: []
+                    for_severity: []
+                  cited_precedents: []
+                  applicable_laws: []
+                  dissenting_views: []
+        '404':
+          description: Opinion not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: opinion not found for session
+                status_code: 404
+  /v1/council/deliberation/{session_id}/stream/initial:
+    post:
+      summary: Stream remaining initial opinions from judges
+      description: |
+        Session creation generates 1 random judge's opinion. This endpoint
+        streams opinions from the remaining judges to complete the initial
+        deliberation round.
+      operationId: streamCouncilInitial
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: SSE stream of deliberation
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/StreamEventData'
+              example:
+                event_type: agent_start
+                agent_id: humanist
+  /v1/council/deliberation/{session_id}/stream/message:
+    post:
+      summary: Stream message response
+      description: |
+        Send a message and stream agent responses in real-time.
+        The orchestrator determines which agent(s) should respond based on
+        target_agent, message intent, and conversation balance.
+      operationId: streamCouncilMessage
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamMessageRequest'
+            example:
+              content: Hakim Legalis, apa pendapat Anda tentang vonis yang tepat untuk kasus ini?
+              target_agent: legalis
+      responses:
+        '200':
+          description: SSE stream of response
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/StreamEventData'
+              example:
+                event_type: user_message
+                message_id: msg_004
+                content: Hakim Strict, apa pendapat Anda...
+  /v1/council/deliberation/{session_id}/stream/continue:
+    post:
+      summary: Stream continued deliberation
+      description: |
+        Continue the judicial discussion with streaming responses.
+        Allows judges to deliberate amongst themselves in real-time.
+      operationId: streamCouncilContinue
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamContinueRequest'
+            example:
+              num_rounds: 1
+      responses:
+        '200':
+          description: SSE stream of deliberation
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/StreamEventData'
+              example:
+                event_type: agent_start
+                agent_id: humanist
+  /v1/council/deliberation/{session_id}/download/pdf:
+    get:
+      summary: Download deliberation as PDF
+      operationId: downloadCouncilPDF
+      tags:
+        - council
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 64
+          example: sess_01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: PDF file
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              example: attachment; filename="deliberation_sess_01HN6VJKM4XPQW3B5RTCDEFGHN.pdf"
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  /v1/council/cases/search:
+    post:
+      summary: Search similar cases
+      operationId: searchCouncilCases
+      tags:
+        - council
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCasesRequest'
+            example:
+              query: kasus korupsi proyek infrastruktur jalan dengan mark-up harga oleh pejabat dinas PUPR
+              limit: 5
+              semantic_search: true
+      responses:
+        '200':
+          description: Similar cases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchCasesResponse'
+              example:
+                cases:
+                  - id: 01HN6VJKM4XPQW3B5RTCDEFGHN
+                    case_number: 45/Pid.Sus-TPK/2023/PN.Jkt.Pst
+                    case_type: corruption
+                    court_name: Pengadilan Tipikor Jakarta Pusat
+                    court_type: Pengadilan Tindak Pidana Korupsi
+                    decision_date: '2023-08-17'
+                    defendant_name: Budi Santoso
+                    defendant_age: 52
+                    defendant_first_offender: true
+                    corruption_details:
+                      state_loss_idr: 3500000000
+                      position: Kepala Dinas PUPR
+                    legal_basis:
+                      - Pasal 12 huruf a UU 31/1999 jo UU 20/2001
+                    is_landmark_case: false
+                    summary_id: Kepala Dinas PUPR terbukti menerima suap dari kontraktor untuk memenangkan tender proyek jalan.
+                total: 1
+    get:
+      summary: Search similar cases
+      operationId: searchCouncilCasesGet
+      tags:
+        - council
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 500
+          example: korupsi proyek infrastruktur
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          example: 5
+        - name: semantic
+          in: query
+          schema:
+            type: boolean
+            default: true
+          example: true
+        - name: case_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/CouncilCaseType'
+          example: corruption
+      responses:
+        '200':
+          description: Similar cases
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchCasesResponse'
+              example:
+                cases:
+                  - id: 01HN6VJKM4XPQW3B5RTCDEFGHN
+                    case_number: 45/Pid.Sus-TPK/2023/PN.Jkt.Pst
+                    case_type: corruption
+                    court_name: Pengadilan Tipikor Jakarta Pusat
+                    defendant_name: Budi Santoso
+                    summary_id: Kepala Dinas PUPR terbukti menerima suap dari kontraktor untuk memenangkan tender proyek jalan.
+                total: 1
+        '400':
+          description: Invalid search request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Please choose a valid case type.
+                status_code: 400
+  /v1/council/cases/by-type/{case_type}:
+    get:
+      summary: Get cases by type
+      operationId: getCouncilCasesByType
+      tags:
+        - council
+      parameters:
+        - name: case_type
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/CouncilCaseType'
+          example: corruption
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          example: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 0
+      responses:
+        '200':
+          description: Cases by type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchCasesResponse'
+              example:
+                cases:
+                  - id: 01HN6VJKM4XPQW3B5RTCDEFGHN
+                    case_number: 45/Pid.Sus-TPK/2023/PN.Jkt.Pst
+                    case_type: corruption
+                    court_name: Pengadilan Tipikor Jakarta Pusat
+                    defendant_name: Budi Santoso
+                    summary_id: Kepala Dinas PUPR terbukti menerima suap dari kontraktor untuk memenangkan tender proyek jalan.
+                total: 1
+        '400':
+          description: Invalid case type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Please choose a valid case type.
+                status_code: 400
+  /v1/council/cases/{case_id}:
+    get:
+      summary: Get case details
+      operationId: getCouncilCase
+      tags:
+        - council
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9A-HJKMNP-TV-Z]{26}$
+          example: 01HN6VJKM4XPQW3B5RTCDEFGHN
+      responses:
+        '200':
+          description: Case details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCaseResponse'
+              example:
+                case:
+                  id: 01HN6VJKM4XPQW3B5RTCDEFGHN
+                  case_number: 45/Pid.Sus-TPK/2023/PN.Jkt.Pst
+                  case_type: corruption
+                  court_name: Pengadilan Tipikor Jakarta Pusat
+                  court_type: Pengadilan Tindak Pidana Korupsi
+                  decision_date: '2023-08-17'
+                  defendant_name: Budi Santoso
+                  defendant_age: 52
+                  defendant_first_offender: true
+                  indictment:
+                    articles:
+                      - Pasal 12 huruf a UU 31/1999 jo UU 20/2001
+                  corruption_details:
+                    state_loss_idr: 3500000000
+                    position: Kepala Dinas PUPR
+                  legal_facts:
+                    summary: Terdakwa menerima suap untuk memenangkan tender proyek jalan.
+                  verdict:
+                    decision: guilty
+                    sentence_months: 84
+                  legal_basis:
+                    - Pasal 12 huruf a UU 31/1999 jo UU 20/2001
+                  is_landmark_case: false
+                  summary_id: Kepala Dinas PUPR Kabupaten X terbukti menerima suap dari PT Maju Jaya.
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: case not found
+                status_code: 404
+  /v1/council/cases/statistics:
+    get:
+      summary: Get case statistics
+      operationId: getCouncilCaseStatistics
+      tags:
+        - council
+      responses:
+        '200':
+          description: Statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseStatisticsResponse'
+              example:
+                total_cases: 1250
+                sentence_distribution:
+                  corruption:
+                    avg_months: 66.5
+                    count: 580
+                  narcotics:
+                    avg_months: 48.2
+                    count: 425
+                verdict_distribution:
+                  guilty: 1180
+                  acquitted: 70
+  /health:
+    get:
+      summary: Liveness probe
+      description: Check if the service is alive and responding to requests
+      operationId: getHealth
+      tags:
+        - health
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+              example:
+                status: ok
+  /ready:
+    get:
+      summary: Readiness probe
+      description: Check if the service is ready to accept traffic (database and Redis connections healthy)
+      operationId: getReady
+      tags:
+        - health
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  database:
+                    type: string
+                  redis:
+                    type: string
+              example:
+                status: ready
+                database: connected
+                redis: connected
+        '503':
+          description: Service not ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  database:
+                    type: string
+                  redis:
+                    type: string
+              example:
+                status: not_ready
+                database: connected
+                redis: disconnected
+components:
+  schemas:
+    AgentId:
+      type: string
+      description: Identifiers for the judicial AI agents
+      enum:
+        - strict
+        - humanist
+        - historian
+    AgentPosition:
+      type: object
+      description: An agent's position on a specific issue in the deliberation
+      required:
+        - issue
+        - stance
+        - reasoning_summary
+        - round_stated
+      properties:
+        issue:
+          type: string
+          description: The deliberation issue being discussed
+        stance:
+          $ref: '#/components/schemas/PositionStance'
+        reasoning_summary:
+          type: string
+          description: 1-2 sentence summary of the agent's reasoning
+        round_stated:
+          type: integer
+          description: The round number when this position was stated
+    AgentSender:
+      type: object
+      required:
+        - type
+        - agent_id
+      properties:
+        type:
+          type: string
+          enum:
+            - agent
+        agent_id:
+          $ref: '#/components/schemas/AgentId'
+    AgreementMap:
+      type: object
+      description: Tracks agent positions and agreement across deliberation issues
+      properties:
+        issues:
+          type: object
+          description: Map of issue_key to agent positions (agent_id -> AgentPosition)
+          additionalProperties:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/AgentPosition'
+          default: {}
+        round_count:
+          type: integer
+          default: 0
+        regression_count:
+          type: integer
+          default: 0
+        convergence_score:
+          type: number
+          format: float
+          description: Proportion of issues with majority agreement (0.0-1.0)
+          default: 0
+        last_convergence_check:
+          type: integer
+          description: Round number of the last convergence check
+          default: 0
+    ApplicableLaw:
+      type: object
+      description: An applicable law reference
+      properties:
+        law_reference:
+          type: string
+          description: Reference to the law (e.g., Article 2 UU 31/1999)
+        description:
+          type: string
+          description: Description of the law
+        how_it_applies:
+          type: string
+          description: How this law applies to the case
+      required:
+        - law_reference
+        - description
+        - how_it_applies
+    ArgumentPoint:
+      type: object
+      description: A single argument point in the legal opinion
+      properties:
+        argument:
+          type: string
+          description: |
+            Single bullet-point legal argument. ONE concise sentence stating
+            only the substantive legal point — no greetings, honorifics
+            ("Yang Mulia"), speaker self-references ("Saya berpendapat"), or
+            introductory framing. Suitable for direct rendering as a list
+            item. Maximum ~40 words.
+          maxLength: 400
+          example: Terdakwa terbukti merugikan keuangan negara sebesar Rp 5 miliar, memenuhi unsur Pasal 2 UU Tipikor.
+        source_agent:
+          $ref: '#/components/schemas/AgentId'
+        supporting_cases:
+          type: array
+          items:
+            type: string
+          description: Cases supporting this argument
+        strength:
+          type: string
+          description: Argument strength (strong, moderate, weak)
+      required:
+        - argument
+        - source_agent
+        - strength
+    CaseInput:
+      type: object
+      description: Complete case input with raw and parsed data
+      required:
+        - input_type
+        - raw_input
+        - parsed_case
+      properties:
+        input_type:
+          $ref: '#/components/schemas/InputType'
+        raw_input:
+          type: string
+        parsed_case:
+          $ref: '#/components/schemas/ParsedCaseInput'
+    CaseRecord:
+      type: object
+      description: A case record from the database
+      properties:
+        id:
+          type: string
+        case_number:
+          type: string
+          nullable: true
+        case_type:
+          $ref: '#/components/schemas/CouncilCaseType'
+        court_name:
+          type: string
+          nullable: true
+        court_type:
+          type: string
+          nullable: true
+        decision_date:
+          type: string
+          nullable: true
+        defendant_name:
+          type: string
+          nullable: true
+        defendant_age:
+          type: integer
+          nullable: true
+        defendant_first_offender:
+          type: boolean
+          nullable: true
+        indictment:
+          type: object
+          nullable: true
+        narcotics_details:
+          type: object
+          nullable: true
+        corruption_details:
+          type: object
+          nullable: true
+        legal_facts:
+          type: object
+          nullable: true
+        verdict:
+          type: object
+          nullable: true
+        legal_basis:
+          type: array
+          items:
+            type: string
+          nullable: true
+        is_landmark_case:
+          type: boolean
+          default: false
+        extraction_result:
+          type: object
+          nullable: true
+        summary_en:
+          type: string
+          nullable: true
+        summary_id:
+          type: string
+          nullable: true
+    CaseStatisticsResponse:
+      type: object
+      description: Response for case statistics
+      required:
+        - total_cases
+        - sentence_distribution
+        - verdict_distribution
+      properties:
+        total_cases:
+          type: integer
+        sentence_distribution:
+          type: object
+        verdict_distribution:
+          type: object
+    ChartItem:
+      type: object
+      required:
+        - label
+        - value
+      properties:
+        label:
+          type: string
+        value:
+          type: number
+    CitedPrecedent:
+      type: object
+      description: A precedent case cited in the opinion
+      properties:
+        case_id:
+          type: string
+          description: Unique identifier of the precedent case
+        case_number:
+          type: string
+          description: Official case number
+        relevance:
+          type: string
+          description: Why this case is relevant
+        verdict_summary:
+          type: string
+          description: Summary of the verdict
+        how_it_applies:
+          type: string
+          description: How this precedent applies to the current case
+      required:
+        - case_id
+        - case_number
+        - relevance
+        - verdict_summary
+        - how_it_applies
+    ContinueDiscussionRequest:
+      type: object
+      properties:
+        num_rounds:
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 3
+          description: Number of discussion rounds (each round = all judges respond)
+    ContinueDiscussionResponse:
+      type: object
+      required:
+        - new_messages
+        - total_messages
+      properties:
+        new_messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliberationMessage'
+        total_messages:
+          type: integer
+    CorruptionDetails:
+      type: object
+      description: Details specific to corruption cases
+      required:
+        - state_loss_idr
+      properties:
+        state_loss_idr:
+          type: number
+          format: float
+        position:
+          type: string
+          nullable: true
+    CouncilCaseType:
+      type: string
+      description: Types of legal cases
+      enum:
+        - narcotics
+        - corruption
+        - general_criminal
+        - other
+    CouncilDefendantProfile:
+      type: object
+      description: Profile of the defendant in a case
+      properties:
+        is_first_offender:
+          type: boolean
+          default: true
+        age:
+          type: integer
+          nullable: true
+        occupation:
+          type: string
+          nullable: true
+    CouncilSimilarCase:
+      type: object
+      description: A similar case found via semantic search
+      required:
+        - case_id
+        - case_number
+        - similarity_score
+        - similarity_reason
+        - verdict_summary
+        - sentence_months
+      properties:
+        case_id:
+          type: string
+        case_number:
+          type: string
+        similarity_score:
+          type: number
+          format: float
+        similarity_reason:
+          type: string
+        verdict_summary:
+          type: string
+        sentence_months:
+          type: integer
+    CreateSessionRequest:
+      type: object
+      required:
+        - case_summary
+      properties:
+        case_summary:
+          type: string
+          minLength: 50
+          maxLength: 10000
+          description: Summary of the case for deliberation
+        case_type:
+          $ref: '#/components/schemas/CouncilCaseType'
+        structured_data:
+          $ref: '#/components/schemas/StructuredCaseData'
+        input_type:
+          $ref: '#/components/schemas/InputType'
+    CreateSessionResponse:
+      type: object
+      description: Response after creating a session
+      required:
+        - session_id
+        - parsed_case
+        - similar_cases
+      properties:
+        session_id:
+          type: string
+        parsed_case:
+          $ref: '#/components/schemas/ParsedCaseInput'
+        similar_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/CouncilSimilarCase'
+        initial_message:
+          $ref: '#/components/schemas/DeliberationMessage'
+          nullable: true
+    CreateSessionStreamEventData:
+      type: object
+      description: Data payload for streaming session creation events (SSE)
+      required:
+        - event_type
+      properties:
+        event_type:
+          $ref: '#/components/schemas/CreateSessionStreamEventType'
+        status:
+          type: string
+          nullable: true
+          description: Progress status for setup events
+        session_id:
+          type: string
+          nullable: true
+          description: Session identifier once the session has been created
+        parsed_case:
+          $ref: '#/components/schemas/ParsedCaseInput'
+          nullable: true
+        similar_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/CouncilSimilarCase'
+          nullable: true
+        agent_id:
+          $ref: '#/components/schemas/AgentId'
+          nullable: true
+        content:
+          type: string
+          description: Event content, chunk text, or error text
+          nullable: true
+        message_id:
+          type: string
+          nullable: true
+          description: Message identifier for agent stream events
+        full_content:
+          type: string
+          nullable: true
+          description: Full message content on agent completion
+        initial_message:
+          $ref: '#/components/schemas/DeliberationMessage'
+          nullable: true
+        status_code:
+          type: integer
+          nullable: true
+          description: HTTP-like status code for terminal error events
+    CreateSessionStreamEventType:
+      type: string
+      description: Event types emitted while creating a deliberation session
+      enum:
+        - status
+        - session_created
+        - agent_start
+        - chunk
+        - agent_complete
+        - session_complete
+        - error
+    DeliberationMessage:
+      type: object
+      description: A message in a deliberation session
+      required:
+        - id
+        - session_id
+        - sender
+        - content
+      properties:
+        id:
+          type: string
+        session_id:
+          type: string
+        sender:
+          $ref: '#/components/schemas/MessageSender'
+        content:
+          type: string
+        intent:
+          type: string
+          nullable: true
+        cited_cases:
+          type: array
+          items:
+            type: string
+          default: []
+        cited_laws:
+          type: array
+          items:
+            type: string
+          default: []
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+    DeliberationPhase:
+      type: string
+      description: Current phase of a deliberation session
+      enum:
+        - legacy
+        - opening
+        - debate
+        - convergence
+        - summary
+    DeliberationSession:
+      type: object
+      description: A deliberation session
+      required:
+        - id
+        - status
+        - case_input
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/SessionStatus'
+        current_phase:
+          $ref: '#/components/schemas/DeliberationPhase'
+        phase_metadata:
+          $ref: '#/components/schemas/PhaseMetadata'
+        case_input:
+          $ref: '#/components/schemas/CaseInput'
+        similar_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/CouncilSimilarCase'
+          default: []
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliberationMessage'
+          default: []
+        legal_opinion:
+          type: object
+          nullable: true
+        structured_summary:
+          type: object
+          nullable: true
+          description: Structured deliberation summary (populated in summary phase)
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        concluded_at:
+          type: string
+          format: date-time
+          nullable: true
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+        status_code:
+          type: integer
+    FilterOption:
+      type: object
+      required:
+        - value
+        - label
+      properties:
+        value:
+          type: string
+        label:
+          type: string
+        count:
+          type: integer
+          nullable: true
+          description: Optional - number of records with this value
+    GenerateOpinionRequest:
+      type: object
+      description: Request to generate a legal opinion
+      properties:
+        include_dissent:
+          type: boolean
+          default: true
+    GenerateOpinionResponse:
+      type: object
+      description: Response containing the generated legal opinion
+      properties:
+        opinion:
+          $ref: '#/components/schemas/LegalOpinionDraft'
+      required:
+        - opinion
+    GetCaseResponse:
+      type: object
+      description: Response for getting a single case
+      required:
+        - case
+      properties:
+        case:
+          $ref: '#/components/schemas/CaseRecord'
+    GetMessagesResponse:
+      type: object
+      description: Response for getting messages
+      required:
+        - messages
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliberationMessage'
+    GetSessionResponse:
+      type: object
+      description: Response for getting a session
+      required:
+        - session
+      properties:
+        session:
+          $ref: '#/components/schemas/DeliberationSession'
+    InputType:
+      type: string
+      description: Type of case input
+      enum:
+        - text_summary
+        - extraction_id
+    LegalArguments:
+      type: object
+      description: Collected legal arguments from the deliberation
+      properties:
+        for_conviction:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArgumentPoint'
+          description: Arguments supporting conviction
+        for_leniency:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArgumentPoint'
+          description: Arguments supporting leniency
+        for_severity:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArgumentPoint'
+          description: Arguments supporting severity
+    LegalOpinionDraft:
+      type: object
+      description: Generated legal opinion from a deliberation session
+      properties:
+        session_id:
+          type: string
+          description: Session this opinion belongs to
+        generated_at:
+          type: string
+          format: date-time
+          description: When the opinion was generated
+        case_summary:
+          type: string
+          description: Summary of the case
+        verdict_recommendation:
+          $ref: '#/components/schemas/VerdictRecommendation'
+        sentence_recommendation:
+          $ref: '#/components/schemas/SentenceRecommendation'
+        legal_arguments:
+          $ref: '#/components/schemas/LegalArguments'
+        cited_precedents:
+          type: array
+          items:
+            $ref: '#/components/schemas/CitedPrecedent'
+          description: Precedent cases cited in the opinion
+        applicable_laws:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicableLaw'
+          description: Laws applicable to the case
+        dissenting_views:
+          type: array
+          items:
+            type: string
+          description: Dissenting opinions from judges
+      required:
+        - session_id
+        - generated_at
+        - case_summary
+        - verdict_recommendation
+        - sentence_recommendation
+        - legal_arguments
+    ListSessionsResponse:
+      type: object
+      description: Response for listing sessions
+      required:
+        - sessions
+        - pagination
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliberationSession'
+        pagination:
+          type: object
+          additionalProperties:
+            type: integer
+    MessageIntent:
+      type: string
+      description: Intent classification for user messages
+      enum:
+        - ask_opinion
+        - request_comparison
+        - challenge_view
+        - seek_consensus
+        - general_question
+        - address_agent
+        - introduce_evidence
+        - request_summary
+        - override_suggestion
+    MessageSender:
+      description: Union type for message senders
+      oneOf:
+        - $ref: '#/components/schemas/UserSender'
+        - $ref: '#/components/schemas/AgentSender'
+        - $ref: '#/components/schemas/SystemSender'
+      discriminator:
+        propertyName: type
+        mapping:
+          user: '#/components/schemas/UserSender'
+          agent: '#/components/schemas/AgentSender'
+          system: '#/components/schemas/SystemSender'
+    NarcoticsDetails:
+      type: object
+      description: Details specific to narcotics cases
+      required:
+        - substance
+        - weight_grams
+      properties:
+        substance:
+          type: string
+        weight_grams:
+          type: number
+          format: float
+        intent:
+          $ref: '#/components/schemas/NarcoticsIntent'
+    NarcoticsIntent:
+      type: string
+      description: Intent classification for narcotics cases
+      enum:
+        - personal_use
+        - distribution
+        - unknown
+    PaginationMeta:
+      type: object
+      required:
+        - current_page
+        - last_page
+        - per_page
+        - total
+      properties:
+        current_page:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+    ParsedCaseInput:
+      type: object
+      description: Parsed and structured case information
+      required:
+        - case_type
+        - summary
+      properties:
+        case_type:
+          $ref: '#/components/schemas/CouncilCaseType'
+        summary:
+          type: string
+        defendant_profile:
+          $ref: '#/components/schemas/CouncilDefendantProfile'
+        key_facts:
+          type: array
+          items:
+            type: string
+          default: []
+        charges:
+          type: array
+          items:
+            type: string
+          default: []
+        narcotics:
+          $ref: '#/components/schemas/NarcoticsDetails'
+        corruption:
+          $ref: '#/components/schemas/CorruptionDetails'
+    PhaseMetadata:
+      type: object
+      description: Metadata tracking the deliberation phase state
+      properties:
+        agreement_map:
+          $ref: '#/components/schemas/AgreementMap'
+        phase_history:
+          type: array
+          items:
+            type: object
+            properties:
+              phase:
+                type: string
+              entered_at:
+                type: string
+                format: date-time
+              round:
+                type: integer
+          default: []
+    PositionStance:
+      type: string
+      description: An agent's stance on a deliberation issue
+      enum:
+        - agree
+        - disagree
+        - partial
+        - no_position
+    SearchCasesRequest:
+      type: object
+      description: Request for searching cases
+      required:
+        - query
+      properties:
+        query:
+          type: string
+        limit:
+          type: integer
+          default: 10
+        semantic_search:
+          type: boolean
+          default: true
+        filters:
+          $ref: '#/components/schemas/StructuredCaseData'
+    SearchCasesResponse:
+      type: object
+      description: Response for case search
+      required:
+        - cases
+        - total
+      properties:
+        cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/CaseRecord'
+        total:
+          type: integer
+    SendMessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          description: Message content to send to the council
+        target_agent:
+          type: string
+          enum:
+            - legalis
+            - humanis
+            - sejarawan
+            - strict
+            - humanist
+            - historian
+            - all
+          nullable: true
+          description: Target a specific agent or all agents
+    SendMessageResponse:
+      type: object
+      required:
+        - user_message
+        - agent_responses
+      properties:
+        user_message:
+          $ref: '#/components/schemas/DeliberationMessage'
+        agent_responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliberationMessage'
+    SenderType:
+      type: string
+      description: Type of message sender
+      enum:
+        - user
+        - agent
+        - system
+    SentenceRange:
+      type: object
+      description: A range for sentencing recommendations
+      properties:
+        minimum:
+          type: integer
+          description: Minimum sentence value
+        maximum:
+          type: integer
+          description: Maximum sentence value
+        recommended:
+          type: integer
+          description: Recommended sentence value
+      required:
+        - minimum
+        - maximum
+        - recommended
+    SentenceRecommendation:
+      type: object
+      description: Recommendation for sentencing
+      properties:
+        imprisonment_months:
+          $ref: '#/components/schemas/SentenceRange'
+        fine_idr:
+          $ref: '#/components/schemas/SentenceRange'
+        additional_penalties:
+          type: array
+          items:
+            type: string
+          description: Additional penalties recommended
+      required:
+        - imprisonment_months
+        - fine_idr
+    SessionStatus:
+      type: string
+      description: Status of a deliberation session
+      enum:
+        - active
+        - concluded
+        - archived
+    SimilarCase:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9A-HJKMNP-TV-Z]{26}$
+          description: Case ULID
+        title:
+          type: string
+          description: Case title
+        summary:
+          type: string
+          description: Case summary
+        decision:
+          type: string
+          description: Court decision
+        similarity_score:
+          type: number
+          format: float
+          description: Semantic similarity score (0-1)
+        year:
+          type: integer
+          description: Decision year
+        court:
+          type: string
+          description: Court name
+    StreamContinueRequest:
+      type: object
+      properties:
+        num_rounds:
+          type: integer
+          default: 1
+          minimum: 1
+          maximum: 3
+          description: Number of discussion rounds (each round = all judges respond)
+    StreamEventData:
+      type: object
+      description: Data payload for streaming events (SSE)
+      properties:
+        event_type:
+          $ref: '#/components/schemas/StreamEventType'
+        agent_id:
+          $ref: '#/components/schemas/AgentId'
+        content:
+          type: string
+          description: Event content (chunk text or message)
+        message_id:
+          type: string
+          nullable: true
+          description: Message identifier
+        full_content:
+          type: string
+          nullable: true
+          description: Full message content (only on agent_complete)
+    StreamEventType:
+      type: string
+      description: Types of streaming events
+      enum:
+        - agent_start
+        - chunk
+        - agent_complete
+        - agent_error
+        - user_message
+        - deliberation_complete
+        - phase_transition
+        - convergence_suggestion
+        - summary_ready
+    StreamMessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          description: Message content to send
+        target_agent:
+          type: string
+          enum:
+            - legalis
+            - humanis
+            - sejarawan
+            - strict
+            - humanist
+            - historian
+            - all
+          nullable: true
+          description: Target a specific agent or all agents
+    StructuredCaseData:
+      type: object
+      description: Optional structured data that can be provided with case input
+      properties:
+        case_type:
+          $ref: '#/components/schemas/CouncilCaseType'
+          nullable: true
+        defendant_age:
+          type: integer
+          nullable: true
+        defendant_first_offender:
+          type: boolean
+          nullable: true
+        substance_type:
+          type: string
+          nullable: true
+        weight_grams:
+          type: number
+          format: float
+          nullable: true
+        state_loss_idr:
+          type: number
+          format: float
+          nullable: true
+    SystemSender:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - system
+    UserSender:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - user
+    VerdictDecision:
+      type: string
+      description: Possible verdict decisions
+      enum:
+        - guilty
+        - not_guilty
+        - acquitted
+    VerdictRecommendation:
+      type: object
+      description: Recommendation for the verdict
+      properties:
+        decision:
+          $ref: '#/components/schemas/VerdictDecision'
+        confidence:
+          type: string
+          description: Confidence level (high, medium, low)
+        reasoning:
+          type: string
+          description: Reasoning behind the recommendation
+      required:
+        - decision
+        - confidence
+        - reasoning
+    YearRange:
+      type: object
+      required:
+        - min
+        - max
+      properties:
+        min:
+          type: integer
+        max:
+          type: integer
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Lexicon-Api-Key
+      description: API key for bulk data egress (ProcureLens ETL)
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Authentik OIDC JWT token for admin authentication
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: admin_session
+      description: |
+        Opaque admin BFF session cookie issued by `/v1/admin/auth/callback`.
+        HttpOnly, Secure, SameSite=Lax. Admin endpoints accept EITHER this
+        cookie OR `Authorization: Bearer <jwt>`; supplying both causes the
+        Bearer token to win.
+    TurnstileToken:
+      type: apiKey
+      in: header
+      name: X-Turnstile-Token
+      description: Cloudflare Turnstile verification token from client-side widget

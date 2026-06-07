@@ -1,0 +1,2 @@
+ALTER TABLE crawler.mahkamah_agung_putusans
+DROP CONSTRAINT IF EXISTS ck_ma_putusans_pdf_consistency;

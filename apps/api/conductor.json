@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "setup": "git submodule update --init --recursive && ln -sf \"$CONDUCTOR_ROOT_PATH/.env\" .env && npm ci && make install-all && make regenerate-all",
+    "run": "PORT=$CONDUCTOR_PORT make api-dev",
+    "archive": "make clean"
+  },
+  "runScriptMode": "nonconcurrent"
+}

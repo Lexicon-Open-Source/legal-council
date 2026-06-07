@@ -1,0 +1,808 @@
+# Council schemas
+# Part of the Lexicon Backend API specification
+
+DeliberationPhase:
+  type: string
+  description: Current phase of a deliberation session
+  enum:
+  - legacy
+  - opening
+  - debate
+  - convergence
+  - summary
+PositionStance:
+  type: string
+  description: An agent's stance on a deliberation issue
+  enum:
+  - agree
+  - disagree
+  - partial
+  - no_position
+AgentPosition:
+  type: object
+  description: An agent's position on a specific issue in the deliberation
+  required:
+  - issue
+  - stance
+  - reasoning_summary
+  - round_stated
+  properties:
+    issue:
+      type: string
+      description: The deliberation issue being discussed
+    stance:
+      $ref: '#/PositionStance'
+    reasoning_summary:
+      type: string
+      description: 1-2 sentence summary of the agent's reasoning
+    round_stated:
+      type: integer
+      description: The round number when this position was stated
+AgreementMap:
+  type: object
+  description: Tracks agent positions and agreement across deliberation issues
+  properties:
+    issues:
+      type: object
+      description: Map of issue_key to agent positions (agent_id -> AgentPosition)
+      additionalProperties:
+        type: object
+        additionalProperties:
+          $ref: '#/AgentPosition'
+      default: {}
+    round_count:
+      type: integer
+      default: 0
+    regression_count:
+      type: integer
+      default: 0
+    convergence_score:
+      type: number
+      format: float
+      description: Proportion of issues with majority agreement (0.0-1.0)
+      default: 0.0
+    last_convergence_check:
+      type: integer
+      description: Round number of the last convergence check
+      default: 0
+PhaseMetadata:
+  type: object
+  description: Metadata tracking the deliberation phase state
+  properties:
+    agreement_map:
+      $ref: '#/AgreementMap'
+    phase_history:
+      type: array
+      items:
+        type: object
+        properties:
+          phase:
+            type: string
+          entered_at:
+            type: string
+            format: date-time
+          round:
+            type: integer
+      default: []
+CouncilCaseType:
+  type: string
+  description: Types of legal cases
+  enum:
+  - narcotics
+  - corruption
+  - general_criminal
+  - other
+NarcoticsIntent:
+  type: string
+  description: Intent classification for narcotics cases
+  enum:
+  - personal_use
+  - distribution
+  - unknown
+InputType:
+  type: string
+  description: Type of case input
+  enum:
+  - text_summary
+  - extraction_id
+SessionStatus:
+  type: string
+  description: Status of a deliberation session
+  enum:
+  - active
+  - concluded
+  - archived
+CouncilDefendantProfile:
+  type: object
+  description: Profile of the defendant in a case
+  properties:
+    is_first_offender:
+      type: boolean
+      default: true
+    age:
+      type: integer
+      nullable: true
+    occupation:
+      type: string
+      nullable: true
+NarcoticsDetails:
+  type: object
+  description: Details specific to narcotics cases
+  required:
+  - substance
+  - weight_grams
+  properties:
+    substance:
+      type: string
+    weight_grams:
+      type: number
+      format: float
+    intent:
+      $ref: '#/NarcoticsIntent'
+CorruptionDetails:
+  type: object
+  description: Details specific to corruption cases
+  required:
+  - state_loss_idr
+  properties:
+    state_loss_idr:
+      type: number
+      format: float
+    position:
+      type: string
+      nullable: true
+StructuredCaseData:
+  type: object
+  description: Optional structured data that can be provided with case input
+  properties:
+    case_type:
+      $ref: '#/CouncilCaseType'
+      nullable: true
+    defendant_age:
+      type: integer
+      nullable: true
+    defendant_first_offender:
+      type: boolean
+      nullable: true
+    substance_type:
+      type: string
+      nullable: true
+    weight_grams:
+      type: number
+      format: float
+      nullable: true
+    state_loss_idr:
+      type: number
+      format: float
+      nullable: true
+ParsedCaseInput:
+  type: object
+  description: Parsed and structured case information
+  required:
+  - case_type
+  - summary
+  properties:
+    case_type:
+      $ref: '#/CouncilCaseType'
+    summary:
+      type: string
+    defendant_profile:
+      $ref: '#/CouncilDefendantProfile'
+    key_facts:
+      type: array
+      items:
+        type: string
+      default: []
+    charges:
+      type: array
+      items:
+        type: string
+      default: []
+    narcotics:
+      $ref: '#/NarcoticsDetails'
+    corruption:
+      $ref: '#/CorruptionDetails'
+CaseInput:
+  type: object
+  description: Complete case input with raw and parsed data
+  required:
+  - input_type
+  - raw_input
+  - parsed_case
+  properties:
+    input_type:
+      $ref: '#/InputType'
+    raw_input:
+      type: string
+    parsed_case:
+      $ref: '#/ParsedCaseInput'
+UserSender:
+  type: object
+  required:
+  - type
+  properties:
+    type:
+      type: string
+      enum:
+      - user
+AgentSender:
+  type: object
+  required:
+  - type
+  - agent_id
+  properties:
+    type:
+      type: string
+      enum:
+      - agent
+    agent_id:
+      $ref: '#/AgentId'
+SystemSender:
+  type: object
+  required:
+  - type
+  properties:
+    type:
+      type: string
+      enum:
+      - system
+MessageSender:
+  description: Union type for message senders
+  oneOf:
+  - $ref: '#/UserSender'
+  - $ref: '#/AgentSender'
+  - $ref: '#/SystemSender'
+  discriminator:
+    propertyName: type
+    mapping:
+      user: '#/UserSender'
+      agent: '#/AgentSender'
+      system: '#/SystemSender'
+DeliberationMessage:
+  type: object
+  description: A message in a deliberation session
+  required:
+  - id
+  - session_id
+  - sender
+  - content
+  properties:
+    id:
+      type: string
+    session_id:
+      type: string
+    sender:
+      $ref: '#/MessageSender'
+    content:
+      type: string
+    intent:
+      type: string
+      nullable: true
+    cited_cases:
+      type: array
+      items:
+        type: string
+      default: []
+    cited_laws:
+      type: array
+      items:
+        type: string
+      default: []
+    timestamp:
+      type: string
+      format: date-time
+      nullable: true
+CouncilSimilarCase:
+  type: object
+  description: A similar case found via semantic search
+  required:
+  - case_id
+  - case_number
+  - similarity_score
+  - similarity_reason
+  - verdict_summary
+  - sentence_months
+  properties:
+    case_id:
+      type: string
+    case_number:
+      type: string
+    similarity_score:
+      type: number
+      format: float
+    similarity_reason:
+      type: string
+    verdict_summary:
+      type: string
+    sentence_months:
+      type: integer
+DeliberationSession:
+  type: object
+  description: A deliberation session
+  required:
+  - id
+  - status
+  - case_input
+  - created_at
+  - updated_at
+  properties:
+    id:
+      type: string
+    user_id:
+      type: string
+      nullable: true
+    status:
+      $ref: '#/SessionStatus'
+    current_phase:
+      $ref: '#/DeliberationPhase'
+    phase_metadata:
+      $ref: '#/PhaseMetadata'
+    case_input:
+      $ref: '#/CaseInput'
+    similar_cases:
+      type: array
+      items:
+        $ref: '#/CouncilSimilarCase'
+      default: []
+    messages:
+      type: array
+      items:
+        $ref: '#/DeliberationMessage'
+      default: []
+    legal_opinion:
+      type: object
+      nullable: true
+    structured_summary:
+      type: object
+      nullable: true
+      description: Structured deliberation summary (populated in summary phase)
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+    concluded_at:
+      type: string
+      format: date-time
+      nullable: true
+CreateSessionRequest:
+  type: object
+  required:
+  - case_summary
+  properties:
+    case_summary:
+      type: string
+      minLength: 50
+      maxLength: 10000
+      description: Summary of the case for deliberation
+    case_type:
+      $ref: '#/CouncilCaseType'
+    structured_data:
+      $ref: '#/StructuredCaseData'
+    input_type:
+      $ref: '#/InputType'
+CreateSessionResponse:
+  type: object
+  description: Response after creating a session
+  required:
+  - session_id
+  - parsed_case
+  - similar_cases
+  properties:
+    session_id:
+      type: string
+    parsed_case:
+      $ref: '#/ParsedCaseInput'
+    similar_cases:
+      type: array
+      items:
+        $ref: '#/CouncilSimilarCase'
+    initial_message:
+      $ref: '#/DeliberationMessage'
+      nullable: true
+CreateSessionStreamEventType:
+  type: string
+  description: Event types emitted while creating a deliberation session
+  enum:
+  - status
+  - session_created
+  - agent_start
+  - chunk
+  - agent_complete
+  - session_complete
+  - error
+CreateSessionStreamEventData:
+  type: object
+  description: Data payload for streaming session creation events (SSE)
+  required:
+  - event_type
+  properties:
+    event_type:
+      $ref: '#/CreateSessionStreamEventType'
+    status:
+      type: string
+      nullable: true
+      description: Progress status for setup events
+    session_id:
+      type: string
+      nullable: true
+      description: Session identifier once the session has been created
+    parsed_case:
+      $ref: '#/ParsedCaseInput'
+      nullable: true
+    similar_cases:
+      type: array
+      items:
+        $ref: '#/CouncilSimilarCase'
+      nullable: true
+    agent_id:
+      $ref: '#/AgentId'
+      nullable: true
+    content:
+      type: string
+      description: Event content, chunk text, or error text
+      nullable: true
+    message_id:
+      type: string
+      nullable: true
+      description: Message identifier for agent stream events
+    full_content:
+      type: string
+      nullable: true
+      description: Full message content on agent completion
+    initial_message:
+      $ref: '#/DeliberationMessage'
+      nullable: true
+    status_code:
+      type: integer
+      nullable: true
+      description: HTTP-like status code for terminal error events
+SendMessageRequest:
+  type: object
+  required:
+  - content
+  properties:
+    content:
+      type: string
+      minLength: 1
+      maxLength: 5000
+      description: Message content to send to the council
+    target_agent:
+      type: string
+      enum:
+      - legalis
+      - humanis
+      - sejarawan
+      - strict
+      - humanist
+      - historian
+      - all
+      nullable: true
+      description: Target a specific agent or all agents
+SendMessageResponse:
+  type: object
+  required:
+  - user_message
+  - agent_responses
+  properties:
+    user_message:
+      $ref: '#/DeliberationMessage'
+    agent_responses:
+      type: array
+      items:
+        $ref: '#/DeliberationMessage'
+ContinueDiscussionRequest:
+  type: object
+  properties:
+    num_rounds:
+      type: integer
+      default: 1
+      minimum: 1
+      maximum: 3
+      description: Number of discussion rounds (each round = all judges respond)
+ContinueDiscussionResponse:
+  type: object
+  required:
+  - new_messages
+  - total_messages
+  properties:
+    new_messages:
+      type: array
+      items:
+        $ref: '#/DeliberationMessage'
+    total_messages:
+      type: integer
+StreamMessageRequest:
+  type: object
+  required:
+  - content
+  properties:
+    content:
+      type: string
+      minLength: 1
+      maxLength: 5000
+      description: Message content to send
+    target_agent:
+      type: string
+      enum:
+      - legalis
+      - humanis
+      - sejarawan
+      - strict
+      - humanist
+      - historian
+      - all
+      nullable: true
+      description: Target a specific agent or all agents
+StreamContinueRequest:
+  type: object
+  properties:
+    num_rounds:
+      type: integer
+      default: 1
+      minimum: 1
+      maximum: 3
+      description: Number of discussion rounds (each round = all judges respond)
+StreamEventType:
+  type: string
+  description: Types of streaming events
+  enum:
+  - agent_start
+  - chunk
+  - agent_complete
+  - agent_error
+  - user_message
+  - deliberation_complete
+  - phase_transition
+  - convergence_suggestion
+  - summary_ready
+StreamEventData:
+  type: object
+  description: Data payload for streaming events (SSE)
+  properties:
+    event_type:
+      $ref: '#/StreamEventType'
+    agent_id:
+      $ref: '#/AgentId'
+    content:
+      type: string
+      description: Event content (chunk text or message)
+    message_id:
+      type: string
+      nullable: true
+      description: Message identifier
+    full_content:
+      type: string
+      nullable: true
+      description: Full message content (only on agent_complete)
+VerdictDecision:
+  type: string
+  description: Possible verdict decisions
+  enum:
+  - guilty
+  - not_guilty
+  - acquitted
+AgentId:
+  type: string
+  description: Identifiers for the judicial AI agents
+  enum:
+  - strict
+  - humanist
+  - historian
+SentenceRange:
+  type: object
+  description: A range for sentencing recommendations
+  properties:
+    minimum:
+      type: integer
+      description: Minimum sentence value
+    maximum:
+      type: integer
+      description: Maximum sentence value
+    recommended:
+      type: integer
+      description: Recommended sentence value
+  required:
+  - minimum
+  - maximum
+  - recommended
+VerdictRecommendation:
+  type: object
+  description: Recommendation for the verdict
+  properties:
+    decision:
+      $ref: '#/VerdictDecision'
+    confidence:
+      type: string
+      description: Confidence level (high, medium, low)
+    reasoning:
+      type: string
+      description: Reasoning behind the recommendation
+  required:
+  - decision
+  - confidence
+  - reasoning
+SentenceRecommendation:
+  type: object
+  description: Recommendation for sentencing
+  properties:
+    imprisonment_months:
+      $ref: '#/SentenceRange'
+    fine_idr:
+      $ref: '#/SentenceRange'
+    additional_penalties:
+      type: array
+      items:
+        type: string
+      description: Additional penalties recommended
+  required:
+  - imprisonment_months
+  - fine_idr
+ArgumentPoint:
+  type: object
+  description: A single argument point in the legal opinion
+  properties:
+    argument:
+      type: string
+      description: |
+        Single bullet-point legal argument. ONE concise sentence stating
+        only the substantive legal point — no greetings, honorifics
+        ("Yang Mulia"), speaker self-references ("Saya berpendapat"), or
+        introductory framing. Suitable for direct rendering as a list
+        item. Maximum ~40 words.
+      maxLength: 400
+      example: >-
+        Terdakwa terbukti merugikan keuangan negara sebesar Rp 5 miliar,
+        memenuhi unsur Pasal 2 UU Tipikor.
+    source_agent:
+      $ref: '#/AgentId'
+    supporting_cases:
+      type: array
+      items:
+        type: string
+      description: Cases supporting this argument
+    strength:
+      type: string
+      description: Argument strength (strong, moderate, weak)
+  required:
+  - argument
+  - source_agent
+  - strength
+LegalArguments:
+  type: object
+  description: Collected legal arguments from the deliberation
+  properties:
+    for_conviction:
+      type: array
+      items:
+        $ref: '#/ArgumentPoint'
+      description: Arguments supporting conviction
+    for_leniency:
+      type: array
+      items:
+        $ref: '#/ArgumentPoint'
+      description: Arguments supporting leniency
+    for_severity:
+      type: array
+      items:
+        $ref: '#/ArgumentPoint'
+      description: Arguments supporting severity
+CitedPrecedent:
+  type: object
+  description: A precedent case cited in the opinion
+  properties:
+    case_id:
+      type: string
+      description: Unique identifier of the precedent case
+    case_number:
+      type: string
+      description: Official case number
+    relevance:
+      type: string
+      description: Why this case is relevant
+    verdict_summary:
+      type: string
+      description: Summary of the verdict
+    how_it_applies:
+      type: string
+      description: How this precedent applies to the current case
+  required:
+  - case_id
+  - case_number
+  - relevance
+  - verdict_summary
+  - how_it_applies
+ApplicableLaw:
+  type: object
+  description: An applicable law reference
+  properties:
+    law_reference:
+      type: string
+      description: Reference to the law (e.g., Article 2 UU 31/1999)
+    description:
+      type: string
+      description: Description of the law
+    how_it_applies:
+      type: string
+      description: How this law applies to the case
+  required:
+  - law_reference
+  - description
+  - how_it_applies
+LegalOpinionDraft:
+  type: object
+  description: Generated legal opinion from a deliberation session
+  properties:
+    session_id:
+      type: string
+      description: Session this opinion belongs to
+    generated_at:
+      type: string
+      format: date-time
+      description: When the opinion was generated
+    case_summary:
+      type: string
+      description: Summary of the case
+    verdict_recommendation:
+      $ref: '#/VerdictRecommendation'
+    sentence_recommendation:
+      $ref: '#/SentenceRecommendation'
+    legal_arguments:
+      $ref: '#/LegalArguments'
+    cited_precedents:
+      type: array
+      items:
+        $ref: '#/CitedPrecedent'
+      description: Precedent cases cited in the opinion
+    applicable_laws:
+      type: array
+      items:
+        $ref: '#/ApplicableLaw'
+      description: Laws applicable to the case
+    dissenting_views:
+      type: array
+      items:
+        type: string
+      description: Dissenting opinions from judges
+  required:
+  - session_id
+  - generated_at
+  - case_summary
+  - verdict_recommendation
+  - sentence_recommendation
+  - legal_arguments
+GenerateOpinionResponse:
+  type: object
+  description: Response containing the generated legal opinion
+  properties:
+    opinion:
+      $ref: '#/LegalOpinionDraft'
+  required:
+  - opinion
+SimilarCase:
+  type: object
+  properties:
+    id:
+      type: string
+      pattern: ^[0-9A-HJKMNP-TV-Z]{26}$
+      description: Case ULID
+    title:
+      type: string
+      description: Case title
+    summary:
+      type: string
+      description: Case summary
+    decision:
+      type: string
+      description: Court decision
+    similarity_score:
+      type: number
+      format: float
+      description: Semantic similarity score (0-1)
+    year:
+      type: integer
+      description: Decision year
+    court:
+      type: string
+      description: Court name
