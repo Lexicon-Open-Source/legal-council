@@ -1,0 +1,323 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@lexicon/design-system/global-styles';
+
+@source "../../../../packages/design-system/src/**/*.{ts,tsx}";
+
+:root {
+  --color-agent-legalis: var(--purple-5);
+  --color-agent-humanis: var(--green-5);
+  --color-agent-historian: var(--blue-5);
+  --color-agent-legalis-foreground: #ffffff;
+  --color-agent-humanis-foreground: #ffffff;
+  --color-agent-historian-foreground: #ffffff;
+
+  /* Editorial paper surface — a hair warmer than --background, used for the
+     case folio + transcript so the chamber feels like paper, not a screen. */
+  --color-paper: oklch(99.2% 0.0035 95);
+  --color-paper-edge: oklch(94.5% 0.005 95);
+
+  /* Motion timing — a small set so the app reads as one orchestrated piece */
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-snap: 140ms;
+  --motion-flow: 240ms;
+  --motion-settle: 420ms;
+}
+
+@theme inline {
+  --font-mono: var(--font-geist-mono);
+  --color-agent-legalis: var(--color-agent-legalis);
+  --color-agent-humanis: var(--color-agent-humanis);
+  --color-agent-historian: var(--color-agent-historian);
+  --color-agent-legalis-foreground: var(--color-agent-legalis-foreground);
+  --color-agent-humanis-foreground: var(--color-agent-humanis-foreground);
+  --color-agent-historian-foreground: var(--color-agent-historian-foreground);
+  --color-paper: var(--color-paper);
+  --color-paper-edge: var(--color-paper-edge);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-rethink {
+    font-family: var(--font-rethink-sans), system-ui, sans-serif;
+    font-feature-settings:
+      'ss01' on,
+      'cv11' on;
+  }
+
+  /* Editorial number labels — folio number, case ref, etc.
+     Why: kept here (not Tailwind) so the OpenType + tracking pair travel as one. */
+  .font-folio {
+    font-family: var(--font-rethink-sans), system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Motion — one orchestrated set, not micro-interaction sprinkles
+   ───────────────────────────────────────────────────────────────── */
+
+@keyframes folio-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes message-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes thinking-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.55;
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer-line {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* Hero entrance — used on the opinion page where each section enters with
+   a slightly bigger Y travel than the standard folio-rise. The number
+   feels like it lands on the page rather than fading in. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Empty-state icon — a slow vertical drift, ~3s cycle, only ±3px so it
+   reads as quiet presence, not an animation begging for attention. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Brief surface highlight — flashes the paper edge when an example is
+   clicked, confirming the click "landed" in the document. */
+@keyframes paper-highlight {
+  0% {
+    border-color: var(--color-paper-edge);
+    box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0);
+  }
+  20% {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px oklch(from var(--color-primary) l c h / 0.12);
+  }
+  100% {
+    border-color: var(--color-paper-edge);
+    box-shadow: 0 0 0 0 oklch(from var(--color-primary) l c h / 0);
+  }
+}
+
+/* Brief folio glow — used when the № updates from placeholder to a real
+   session id. A short crossfade by remounting via React key. */
+@keyframes folio-flip {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-folio-rise {
+  animation: folio-rise var(--motion-settle) var(--ease-out-quart) both;
+}
+.anim-folio-rise-delay-1 {
+  animation: folio-rise var(--motion-settle) var(--ease-out-quart) both;
+  animation-delay: 60ms;
+}
+.anim-folio-rise-delay-2 {
+  animation: folio-rise var(--motion-settle) var(--ease-out-quart) both;
+  animation-delay: 120ms;
+}
+.anim-folio-rise-delay-3 {
+  animation: folio-rise var(--motion-settle) var(--ease-out-quart) both;
+  animation-delay: 180ms;
+}
+.anim-message-rise {
+  animation: message-rise var(--motion-flow) var(--ease-out-quart) both;
+}
+.anim-thinking-pulse {
+  animation: thinking-pulse 1.6s var(--ease-out-quart) infinite;
+}
+.anim-caret-blink::after {
+  content: '';
+  display: inline-block;
+  width: 0.5ch;
+  height: 1em;
+  margin-left: 2px;
+  background: currentColor;
+  vertical-align: -0.15em;
+  animation: caret-blink 1.05s steps(2, end) infinite;
+}
+
+/* Hero entrance utility — same pattern as folio-rise but with a slightly
+   bigger Y travel so the verdict + sentence land with a touch more weight. */
+.anim-hero {
+  animation: hero-rise 520ms var(--ease-out-quart) both;
+}
+.anim-hero-1 {
+  animation: hero-rise 520ms var(--ease-out-quart) both;
+  animation-delay: 80ms;
+}
+.anim-hero-2 {
+  animation: hero-rise 520ms var(--ease-out-quart) both;
+  animation-delay: 160ms;
+}
+.anim-hero-3 {
+  animation: hero-rise 520ms var(--ease-out-quart) both;
+  animation-delay: 240ms;
+}
+.anim-hero-4 {
+  animation: hero-rise 520ms var(--ease-out-quart) both;
+  animation-delay: 320ms;
+}
+.anim-hero-5 {
+  animation: hero-rise 520ms var(--ease-out-quart) both;
+  animation-delay: 400ms;
+}
+
+/* List stagger — used inline by setting --stagger-i to the row index.
+   row[i] enters at i*40ms after the parent appears. Capped via clamp
+   so a long list doesn't accumulate visible lag at the end. */
+.anim-list-row {
+  animation: message-rise var(--motion-flow) var(--ease-out-quart) both;
+  animation-delay: calc(min(var(--stagger-i, 0) * 40ms, 320ms));
+}
+
+/* Quiet drift on empty-state icons */
+.anim-drift {
+  animation: drift 3.6s var(--ease-out-quart) infinite;
+}
+
+/* Press feedback — universal active-press scale. Pair with transition-snap
+   on the same element. */
+.press {
+  transform-origin: center;
+  transition: transform var(--motion-snap) var(--ease-out-quart);
+}
+.press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Paper highlight — fires once when class is applied; remove after 700ms
+   in JS so it can run again on the next click. */
+.anim-paper-highlight {
+  animation: paper-highlight 720ms var(--ease-out-quart) 1;
+}
+
+/* Folio number flip — applied on a keyed span so React re-renders
+   trigger the animation. */
+.anim-folio-flip {
+  animation: folio-flip 320ms var(--ease-out-quart) both;
+}
+
+/* Hairline shimmer used by the streaming progress bar */
+.anim-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-primary) 30%,
+    var(--color-primary) 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-line 1.4s linear infinite;
+}
+
+/* All hover/focus transitions in this app share the same easing so
+   they feel like one piece. */
+.transition-snap {
+  transition-duration: var(--motion-snap);
+  transition-timing-function: var(--ease-out-quart);
+}
+.transition-flow {
+  transition-duration: var(--motion-flow);
+  transition-timing-function: var(--ease-out-quart);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-folio-rise,
+  .anim-folio-rise-delay-1,
+  .anim-folio-rise-delay-2,
+  .anim-folio-rise-delay-3,
+  .anim-message-rise,
+  .anim-hero,
+  .anim-hero-1,
+  .anim-hero-2,
+  .anim-hero-3,
+  .anim-hero-4,
+  .anim-hero-5,
+  .anim-list-row,
+  .anim-folio-flip,
+  .anim-paper-highlight {
+    animation: none;
+  }
+  .anim-thinking-pulse,
+  .anim-drift {
+    animation: none;
+    opacity: 0.7;
+  }
+  .anim-shimmer {
+    animation: none;
+    background: var(--color-primary);
+  }
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+}
