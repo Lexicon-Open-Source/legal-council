@@ -1,0 +1,28 @@
+{
+  "name": "legal-council",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@11.1.1",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "check-types": "turbo run check-types",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "backend:up": "docker compose up -d postgres redis api llm",
+    "backend:down": "docker compose down",
+    "backend:logs": "docker compose logs -f api llm"
+  },
+  "devDependencies": {
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-tailwindcss": "catalog:",
+    "turbo": "catalog:"
+  },
+  "pnpm": {}
+}

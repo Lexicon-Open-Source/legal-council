@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lexicon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lexicon}
+      POSTGRES_DB: ${POSTGRES_DB:-lexicon}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-lexicon} -d ${POSTGRES_DB:-lexicon}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  llm:
+    build: ./apps/llm
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://lexicon:lexicon@postgres:5432/lexicon}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      LLM_API_KEY: ${LLM_API_KEY:-local-dev-key}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      # Disable OpenTelemetry exporters locally (no collector running)
+      OTEL_TRACES_EXPORTER: none
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${LLM_HOST_PORT:-8001}:8001"
+
+  api:
+    build: ./apps/api
+    environment:
+      DATABASE_URL: ${API_DATABASE_URL:-postgres://lexicon:lexicon@postgres:5432/lexicon?sslmode=disable}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      LLM_SERVICE_URL: ${LLM_SERVICE_URL:-http://localhost:18001}
+      LLM_API_KEY: ${LLM_API_KEY:-local-dev-key}
+      PORT: "8000"
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      TURNSTILE_ENABLED: ${TURNSTILE_ENABLED:-false}
+      OTEL_ENABLED: ${OTEL_ENABLED:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      llm:
+        condition: service_started
+    ports:
+      - "${API_HOST_PORT:-8000}:8000"
+
+volumes:
+  pgdata:
