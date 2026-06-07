@@ -1,0 +1,13 @@
+{
+  "name": "@lexicon/tailwind-config",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./postcss": "./postcss.config.mjs"
+  },
+  "devDependencies": {
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:"
+  }
+}
