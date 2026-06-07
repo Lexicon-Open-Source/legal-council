@@ -1,0 +1,12 @@
+{
+  "name": "llm",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "uv run uvicorn main:app --host 0.0.0.0 --port 8001 --reload",
+    "build": "uv sync",
+    "start": "uv run uvicorn main:app --host 0.0.0.0 --port 8001",
+    "lint": "uv run ruff check .",
+    "test": "uv run pytest"
+  }
+}

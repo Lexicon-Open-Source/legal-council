@@ -1,0 +1,130 @@
+[project]
+name = "llm-service"
+version = "0.1.0"
+description = "Lexicon LLM Services"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "fastapi[standard]>=0.128.0",
+    "greenlet>=3.3.0",
+    "litellm>=1.80.11",
+    "markdown>=3.10",
+    "numpy>=2.4.0",
+    "pgvector>=0.4.2",
+    "pydantic-settings>=2.12.0",
+    "reportlab>=4.4.7",
+    "sqlmodel>=0.0.31",
+    "tenacity>=9.1.2",
+    # OpenTelemetry (auto-instrumentation - recommended for production)
+    # distro includes SDK + auto-instrumentation core
+    # bootstrap will auto-detect and install needed instrumentations
+    "opentelemetry-distro>=0.60b1",
+    "opentelemetry-exporter-otlp>=1.39.1",
+    # Explicit instrumentations for LLM service
+    "opentelemetry-instrumentation-fastapi>=0.60b1",
+    "opentelemetry-instrumentation-sqlalchemy>=0.60b1",
+    "opentelemetry-instrumentation-asyncpg>=0.60b1",
+    "opentelemetry-instrumentation-system-metrics>=0.60b1",
+    # GenAI instrumentation for LLM metrics (litellm supports multiple providers)
+    "opentelemetry-instrumentation-google-generativeai>=0.50.1",
+]
+
+[dependency-groups]
+dev = [
+    "datamodel-code-generator[http]>=0.52.2",
+    "httpx>=0.28.1",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "ruff>=0.14.10",
+    "uv-plugin-up>=1.1.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+exclude = [".git", ".venv", "__pycache__", "build", "dist"]
+
+line-length = 88
+indent-width = 4
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "UP",   # pyupgrade,
+    "I",    # isort
+    "C901", # mccabe
+    "W",
+    "B018",
+    "B017",
+]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Ignore line length in generated files (SQLC, OpenAPI models)
+[tool.ruff.lint.per-file-ignores]
+"src/council/db/sqlc/*.py" = ["E501"]
+"src/council/models/generated.py" = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+
+[tool.datamodel-codegen]
+# Input: Shared OpenAPI specification
+input = "../api/openapi.yaml"
+
+# Output: Generated models file
+output = "src/council/models/generated.py"
+
+# Python version target
+target-python-version = "3.14"
+
+# Generate Pydantic v2 BaseModel classes
+output-model-type = "pydantic_v2.BaseModel"
+
+# Use schema descriptions as docstrings
+use-schema-description = true
+
+# Generate Field() with constraints
+field-constraints = true
+
+# Use Annotated type hints
+use-annotated = true
+
+# Use subclass enums
+use-subclass-enum = true
+
+# Use standard collections (list, dict)
+use-standard-collections = true
+
+# Use union operator (|)
+use-union-operator = true
+
+# Capitalize enum members
+capitalise-enum-members = true
+
+# Use default None for optional fields
+use-default = true
+
+# Collapse root models when possible
+collapse-root-models = true
+
+# Reuse model definitions
+reuse-model = true
+
+# Disable timestamp to ensure deterministic output
+disable-timestamp = true
